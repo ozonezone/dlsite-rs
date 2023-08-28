@@ -22,7 +22,6 @@ tracing = "0.1"
 strum = { version = "0.25", features = ["derive"] }
 serde_with = { version = "3.3.0", features = ["macros"] }
 serde_path_to_error = "0.1"
-either = { version = "1.9.0", features = ["serde"] }
 serde_repr = "0.1.16"
 
 [dev-dependencies]

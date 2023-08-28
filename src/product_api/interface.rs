@@ -1,16 +1,10 @@
 use std::collections::HashMap;
 
-use either::Either;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use serde_with::{serde_as, DefaultOnError};
+use serde_with::{formats::PreferOne, serde_as, DefaultOnError, OneOrMany};
 
-use crate::{
-    interface::{AgeCategory, FileType, WorkCategory, WorkType},
-    DlsiteClient, DlsiteError, Result,
-};
-
-pub type ProductApiResult = Vec<ProductApiContent>;
+use crate::interface::{AgeCategory, FileType, WorkCategory, WorkType};
 
 #[serde_as]
 #[derive(Debug, Clone, Deserialize)]
@@ -24,7 +18,7 @@ pub struct ProductApiContent {
     pub books_id: Option<String>,
     pub brand_id: Option<String>,
     pub circle_id: Option<String>,
-    pub coupling: Vec<String>,
+    pub coupling: Vec<Value>,
     pub cpu: Option<String>,
     pub default_point: i64,
     pub directed_by: Option<String>,
@@ -113,8 +107,8 @@ pub struct ProductApiContent {
     pub image_main: File,
     pub image_thum: File,
     pub image_thum_mini: File,
-    #[serde(with = "either::serde_untagged")]
-    pub image_thum_touch: Either<Vec<File>, File>,
+    #[serde_as(deserialize_as = "OneOrMany<_, PreferOne>")]
+    pub image_thum_touch: Vec<File>,
     pub image_thum_mini_touch: Vec<Image>,
     pub image_mini: Image,
     pub image_samples: Option<Vec<File>>,
@@ -129,10 +123,10 @@ pub struct ProductApiContent {
     pub content_count_touch: i64,
     pub contents_file_size: i64,
     pub contents_file_size_touch: i64,
-    #[serde(with = "either::serde_untagged")]
-    pub trials: Either<Vec<File>, bool>,
-    #[serde(with = "either::serde_untagged")]
-    pub trials_touch: Either<Vec<File>, bool>,
+    #[serde_as(deserialize_as = "DefaultOnError")]
+    pub trials: Option<Vec<File>>,
+    #[serde_as(deserialize_as = "DefaultOnError")]
+    pub trials_touch: Option<Vec<File>>,
     pub movies: bool,
     #[serde_as(deserialize_as = "DefaultOnError")]
     pub epub_sample: Option<EpubSample>,
@@ -153,8 +147,9 @@ pub struct ProductApiContent {
     pub campaign_end_date: Option<String>,
     pub is_show_campaign_end_date: bool,
     pub chobits: bool,
-    // pub work_options: HashMap<String, WorkOption>,
-    pub work_options: Value,
+    /// ex. {"C84": {name: "コミックマーケット84", ...}, ...}
+    #[serde_as(deserialize_as = "DefaultOnError")]
+    pub work_options: Option<HashMap<String, WorkOption>>,
     pub gift: Vec<String>,
     pub work_rentals: Vec<String>,
     pub is_rental_work: bool,
@@ -187,7 +182,7 @@ pub struct ProductApiContent {
     pub free_end_date: Option<bool>,
     pub has_free_download: bool,
     pub limited_free_terms: Vec<String>,
-    #[serde(default)]
+    #[serde_as(deserialize_as = "DefaultOnError")]
     #[serde(rename = "creaters")]
     pub creators: Option<Creators>,
     pub title_id: Option<String>,
@@ -418,158 +413,16 @@ pub struct Author {
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Creators {
-    created_by: Option<Vec<Creator>>,
-    voice_by: Option<Vec<Creator>>,
+    pub created_by: Option<Vec<Creator>>,
+    pub voice_by: Option<Vec<Creator>>,
+    pub illust_by: Option<Vec<Creator>>,
+    pub scenario_by: Option<Vec<Creator>>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Creator {
-    id: String,
-    name: String,
-    classification: String,
-    sub_classification: Option<String>,
-}
-
-impl DlsiteClient {
-    /// Get product detail using api.
-    ///
-    /// # Arguments
-    /// * `id` - Product ID.
-    ///
-    /// # Returns
-    /// * `ProductApiContent` - Product details.
-    ///
-    /// # Note
-    /// This api does not return dl count.
-    /// And because of confusing specification of api, serde::Value is used in some place.
-    /// Instead of this you also can use `DlsiteClient.get_product` which scrapes html.
-    pub async fn get_product_api(&self, id: &str) -> Result<ProductApiContent> {
-        let json = self
-            .get(&format!("/api/=/product.json?workno={}", id))
-            .await?;
-        let jd = &mut serde_json::Deserializer::from_str(&json);
-        let result: std::result::Result<ProductApiResult, _> = serde_path_to_error::deserialize(jd);
-
-        match result {
-            Ok(result) => {
-                let Some(json) = result.into_iter().next() else {
-                    return Err(DlsiteError::ParseError("No product found".to_string()));
-                };
-
-                Ok(json)
-            }
-            Err(e) => Err(DlsiteError::ParseError(format!(
-                "Failed to parse json: {}",
-                e
-            ))),
-        }
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use anyhow::Context;
-    use rand::Rng;
-
-    use super::Genre;
-    use crate::{
-        interface::{AgeCategory, WorkType},
-        DlsiteClient,
-    };
-    use test_case::test_case;
-
-    #[tokio::test]
-    async fn get_product_api_1_content() {
-        let client = DlsiteClient::default();
-        let res = client.get_product_api("RJ403038").await.unwrap();
-
-        assert_eq!(res.workno, "RJ403038");
-        assert_eq!(
-            res.work_name,
-            "【ブルーアーカイブ】ユウカASMR～頑張るあなたのすぐそばに～".to_string()
-        );
-        assert_eq!(res.maker_name, "Yostar");
-        assert_eq!(res.circle_id.clone().unwrap(), "RG62982");
-        assert_eq!(res.work_type, WorkType::SOU);
-    }
-
-    #[tokio::test]
-    async fn get_product_api_2() {
-        let client = DlsiteClient::default();
-        let res = client
-            .get_product_api("RJ01017217")
-            .await
-            .context("Failed to get product info");
-        let res = res.unwrap();
-        assert_eq!(res.workno, "RJ01017217".to_string());
-        assert_eq!(
-            res.work_name,
-            "【イヤーキャンドル】道草屋-なつな3-たぬさんこんにちは【ずぶ濡れシャンプー】"
-                .to_string()
-        );
-        assert_eq!(res.maker_name, "桃色CODE");
-        assert_eq!(res.circle_id, Some("RG24350".to_string()));
-        //
-        assert_eq!(res.work_type, WorkType::SOU);
-        assert_eq!(res.age_category, AgeCategory::Adult);
-        let creators = res.creators.unwrap();
-        let voice_by = creators.voice_by.unwrap();
-        let created_by = creators.created_by.unwrap();
-        assert_eq!(voice_by[0].name, "丹羽うさぎ");
-        assert_eq!(voice_by[1].name, "藤堂れんげ");
-        assert_eq!(created_by[0].name, "桃鳥");
-        assert!(res.genres.contains(&Genre {
-            name: "ASMR".to_string(),
-            id: 497,
-            search_val: "497".to_string(),
-            name_base: "ASMR".to_string()
-        }));
-    }
-
-    #[test_case("RJ01084246"; "otome")]
-    #[test_case("VJ01000513"; "soft")]
-    #[test_case("RJ411991"; "normal")]
-    #[tokio::test]
-    async fn get_product_api_success(id: &str) {
-        let client = DlsiteClient::default();
-        client.get_product_api(id).await.unwrap();
-    }
-
-    #[tokio::test]
-    async fn get_product_api_env() {
-        if let Some(id) = std::option_env!("PRODUCT_TEST_ID") {
-            let client = DlsiteClient::default();
-            client.get_product_api(id).await.unwrap();
-        }
-    }
-
-    #[tokio::test]
-    async fn get_product_api_rand_rj() {
-        let mut rng = rand::thread_rng();
-        let mut i = 0;
-        loop {
-            let id = rng.gen_range(100000..1000000);
-            let id = if id >= 1000000 {
-                format!("RJ0{}", id)
-            } else {
-                format!("RJ{}", id)
-            };
-            let client = DlsiteClient::default();
-            println!("Testing for {}", id);
-            let pre_req = client
-                .get(&format!("/api/=/product.json?workno={}", id))
-                .await
-                .unwrap();
-            if pre_req.trim() == "[]" {
-                println!("Testing for {}: Invalid id", id);
-                continue;
-            }
-            client.get_product_api(&id).await.unwrap();
-
-            i += 1;
-            if i >= 5 {
-                break;
-            }
-        }
-    }
+    pub id: String,
+    pub name: String,
+    pub classification: String,
+    pub sub_classification: Option<String>,
 }

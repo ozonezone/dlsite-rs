@@ -1,6 +1,6 @@
 use anyhow::Context;
 use chrono::NaiveDate;
-use tracing::error;
+use test_case::test_case;
 
 use crate::{
     genre::Genre,
@@ -49,16 +49,8 @@ async fn get_product_2() {
         res.title,
         "【イヤーキャンドル】道草屋-なつな3-たぬさんこんにちは【ずぶ濡れシャンプー】".to_string()
     );
-    assert_eq!(
-        res.circle_name,
-
-        "桃色CODE"
-    );
-    assert_eq!(
-        res.circle_id,
-
-        "RG24350"
-    );
+    assert_eq!(res.circle_name, "桃色CODE");
+    assert_eq!(res.circle_id, "RG24350");
 
     assert_eq!(res.work_type, WorkType::SOU);
     assert_eq!(
@@ -80,19 +72,10 @@ async fn get_product_2() {
     dbg!(&res);
 }
 
+#[test_case("RJ01084246"; "otome")]
+#[test_case("VJ01000513"; "soft")]
 #[tokio::test]
-async fn get_product_otome() {
+async fn get_product_success(id: &str) {
     let client = DlsiteClient::default();
-    client.get_product("RJ01084246").await.unwrap();
-}
-
-#[tokio::test]
-async fn get_product_soft() {
-    let _ = tracing_subscriber::fmt::try_init();
-    let client = DlsiteClient::default();
-    let res = client.get_product("VJ01000513").await;
-    if let Err(e) = res {
-        error!("{:?}", e);
-        panic!()
-    }
+    client.get_product(id).await.unwrap();
 }

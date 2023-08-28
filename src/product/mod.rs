@@ -1,3 +1,5 @@
+//! ger_product related informations.
+
 use crate::{
     genre::Genre,
     interface::{AgeCategory, WorkType},
@@ -10,7 +12,7 @@ pub mod ajax;
 pub mod html;
 pub mod review;
 #[cfg(test)]
-mod tests;
+mod test;
 
 /// A product on DLsite.
 #[derive(Debug)]

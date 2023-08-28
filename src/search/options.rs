@@ -2,7 +2,10 @@
 
 use strum::Display;
 
-use crate::{interface::{FileType, WorkCategory}, search::macros::*};
+use crate::{
+    interface::{FileType, WorkCategory, WorkType},
+    search::macros::*,
+};
 
 // Struct that can be converted dlsite url (below is example). All params are optional.
 // https://www.dlsite.com/maniax/fsr/=
@@ -37,9 +40,11 @@ use crate::{interface::{FileType, WorkCategory}, search::macros::*};
 // /show_type/1
 // /from/fs.detail
 
+#[derive(Default)]
 pub struct ProductSearchOptions {
     /// Display lang
     pub language: Language,
+    pub keyword_creator: Option<String>,
     pub sex_category: Option<Vec<SexCategory>>,
     pub keyword: Option<String>,
     pub regist_date_end: Option<String>,
@@ -50,6 +55,7 @@ pub struct ProductSearchOptions {
     pub age_category: Option<Vec<crate::interface::AgeCategory>>,
     pub work_category: Option<Vec<WorkCategory>>,
     pub order: Option<Order>,
+    pub work_type: Option<Vec<WorkType>>,
     pub work_type_category: Option<Vec<WorkTypeCategory>>,
     pub genre: Option<Vec<u32>>,
     pub options_and_or: Option<OptionAndOr>,
@@ -68,42 +74,12 @@ pub struct ProductSearchOptions {
     pub release_term: Option<ReleaseTerm>,
 }
 
-impl Default for ProductSearchOptions {
-    fn default() -> Self {
-        Self {
-            language: Language::Jp,
-            age_category: None,
-            sex_category: None,
-            keyword: None,
-            regist_date_end: None,
-            price_low: None,
-            price_high: None,
-            ana_flg: None,
-            work_category: None,
-            order: None,
-            work_type_category: None,
-            genre: None,
-            options_and_or: None,
-            options: None,
-            options_not: None,
-            file_type: None,
-            rate_average: None,
-            per_page: None,
-            page: None,
-            campagin: None,
-            soon: None,
-            is_pointup: None,
-            is_free: None,
-            release_term: None,
-        }
-    }
-}
-
 impl ProductSearchOptions {
     pub(super) fn to_path(&self) -> String {
         let mut path = "/fsr/ajax/=".to_string();
 
         push!(path, self, language);
+        push_option!(path, self, keyword_creator);
         push_option_array!(path, self, sex_category);
         push_option!(path, self, keyword);
         push_option!(path, self, regist_date_end);
@@ -113,6 +89,7 @@ impl ProductSearchOptions {
         push_option_array!(path, self, age_category);
         push_option_array!(path, self, work_category);
         push_option!(path, self, order);
+        push_option_array!(path, self, work_type);
         push_option_array!(path, self, work_type_category);
         push_option_array!(path, self, genre);
         push_option!(path, self, options_and_or);
@@ -132,9 +109,10 @@ impl ProductSearchOptions {
     }
 }
 
-#[derive(Display)]
+#[derive(Display, Default)]
 #[strum(serialize_all = "snake_case")]
 pub enum Language {
+    #[default]
     Jp,
 }
 
