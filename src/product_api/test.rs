@@ -67,24 +67,26 @@ async fn get_product_api_success(id: &str) {
 #[tokio::test]
 async fn get_product_api_env() {
     if let Some(id) = std::option_env!("PRODUCT_TEST_ID") {
+        println!("Testing for {}", id);
         let client = DlsiteClient::default();
         client.get_product_api(id).await.unwrap();
     }
 }
 
+#[test_case("RJ"; "rj")]
+// #[test_case("VJ"; "vj")]
 #[tokio::test]
-async fn get_product_api_rand_rj() {
+async fn get_product_api_rand(product_type: &str) {
     let mut rng = rand::thread_rng();
     let mut i = 0;
     loop {
         let id = rng.gen_range(100000..1000000);
         let id = if id >= 1000000 {
-            format!("RJ0{}", id)
+            format!("{}0{}", product_type, id)
         } else {
-            format!("RJ{}", id)
+            format!("{}{}", product_type, id)
         };
         let client = DlsiteClient::default();
-        println!("Testing for {}", id);
         let pre_req = client
             .get(&format!("/api/=/product.json?workno={}", id))
             .await
@@ -93,6 +95,7 @@ async fn get_product_api_rand_rj() {
             println!("Testing for {}: Invalid id", id);
             continue;
         }
+        println!("Testing for {}", id);
         client.get_product_api(&id).await.unwrap();
 
         i += 1;
@@ -101,4 +104,3 @@ async fn get_product_api_rand_rj() {
         }
     }
 }
-
