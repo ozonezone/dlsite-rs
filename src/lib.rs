@@ -1,13 +1,13 @@
-#![doc = include_str!("../README.md")]
+#![cfg_attr(not(doctest), doc = include_str!("../README.md"))]
 
 use thiserror::Error;
 
 pub mod circle;
 pub mod genre;
-pub mod product;
-pub mod search;
-pub mod product_api;
 pub mod interface;
+pub mod product;
+pub mod product_api;
+pub mod search;
 mod utils;
 
 #[derive(Debug, Error)]

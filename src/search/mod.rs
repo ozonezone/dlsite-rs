@@ -52,6 +52,25 @@ impl DlsiteClient {
     ///
     /// # Arguments
     /// * `options` - Struct of search options.
+    ///
+    /// # Example
+    /// ```
+    /// use dlsite::{DlsiteClient, product::Product, search::options::*};
+    /// use tokio;
+    /// #[tokio::main]
+    /// async fn main() {
+    ///     let client = DlsiteClient::default();
+    ///     let product = client
+    ///         .search_product(&ProductSearchOptions {
+    ///             sex_category: Some(vec![SexCategory::Male]),
+    ///             keyword: Some("ASMR".to_string()),
+    ///             ..Default::default()
+    ///         })
+    ///         .await
+    ///         .expect("Failed to search");
+    ///     dbg!(&product);
+    /// }
+    /// ```
     pub async fn search_product(
         &self,
         options: &ProductSearchOptions,
