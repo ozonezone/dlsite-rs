@@ -16,7 +16,8 @@ impl DlsiteClient {
         circle_id: &str,
         options: &CircleQueryOptions,
     ) -> Result<SearchResult> {
-        let html = self.get(&options.to_path(circle_id)).await?;
+        let query_path = options.to_path(circle_id);
+        let html = self.get(&query_path).await?;
         let html = Html::parse_fragment(&html);
         let products_html = html
             .select(&Selector::parse("#search_result_list").unwrap())
@@ -35,7 +36,11 @@ impl DlsiteClient {
 
         let products = parse_search_html(&products_html.html())?;
 
-        Ok(SearchResult { products, count })
+        Ok(SearchResult {
+            products,
+            count,
+            query_path,
+        })
     }
 }
 

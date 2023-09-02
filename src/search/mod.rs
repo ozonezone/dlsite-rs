@@ -44,6 +44,7 @@ pub struct SearchProductItem {
 pub struct SearchResult {
     pub products: Vec<SearchProductItem>,
     pub count: i32,
+    pub query_path: String,
 }
 fn parse_count_str(str: &str) -> Result<i32> {
     str.replace(['(', ')', ','], "")
@@ -82,14 +83,19 @@ impl DlsiteClient {
     /// }
     /// ```
     pub async fn search_product(&self, options: &ProductSearchOptions) -> Result<SearchResult> {
-        let json = self.get(&options.to_path()).await?;
+        let query_path = options.to_path();
+        let json = self.get(&query_path).await?;
         let json = serde_json::from_str::<SearchAjaxResult>(&json)?;
         let html = json.search_result;
         let count = json.page_info.count;
 
         let products = parse_search_html(&html)?;
 
-        Ok(SearchResult { products, count })
+        Ok(SearchResult {
+            products,
+            count,
+            query_path,
+        })
     }
 }
 
