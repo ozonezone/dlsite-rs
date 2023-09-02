@@ -30,3 +30,7 @@ anyhow = { version = "1", features = ["backtrace", "std"] }
 tracing-subscriber = "0.3"
 rand = "0.8"
 test-case = "3.1.0"
+
+[features]
+default = []
+serde = []

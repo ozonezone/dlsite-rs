@@ -17,7 +17,7 @@ pub struct ProductHtml {
     pub age_rating: AgeCategory,
     pub circle_id: String,
     pub circle_name: String,
-    pub images: Vec<Url>,
+    pub images: Vec<String>,
     pub people: ProductPeople,
     pub genre: Vec<Genre>,
     pub series: Option<String>,
@@ -73,18 +73,13 @@ fn parse_product_html(html: &Html) -> Result<ProductHtml> {
         .to_parse_error("Failed to parse circle id")?
         .to_string();
 
-    let images: Vec<Url> = html
+    let images: Vec<String> = html
         .select(&Selector::parse(".product-slider-data > div").unwrap())
-        .map(|element| {
-            let url = element
-                .value()
-                .attr("data-src")
-                .to_parse_error("Img tag appears but no src found")?;
-            format!("https:{}", url).parse().map_err(|e| {
-                DlsiteError::ParseError(format!("Failed to parse url: {} ({})", e, url))
-            })
+        .flat_map(|element| {
+            let url = element.value().attr("data-src")?;
+            let url: Url = format!("https:{}", url).parse().ok()?;
+            Some(url.to_string())
         })
-        .filter_map(|result| result.ok())
         .collect();
 
     // work_outline_table

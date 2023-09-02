@@ -6,7 +6,6 @@ use crate::{
     DlsiteClient, Result,
 };
 use chrono::NaiveDate;
-use url::Url;
 
 pub mod ajax;
 pub mod html;
@@ -15,6 +14,7 @@ pub mod review;
 mod test;
 
 /// A product on DLsite.
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 #[derive(Debug)]
 pub struct Product {
     pub id: String,
@@ -31,12 +31,13 @@ pub struct Product {
     pub review_count: Option<i32>,
     pub rating: Option<f32>,
     pub rate_count: Option<i32>,
-    pub images: Vec<Url>,
+    pub images: Vec<String>,
     pub people: ProductPeople,
     pub reviewer_genre: Vec<(Genre, i32)>,
 }
 
 /// People who contributed to a product on DLsite.
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 #[derive(Debug)]
 pub struct ProductPeople {
     pub author: Option<Vec<String>>,

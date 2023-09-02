@@ -13,13 +13,18 @@ use crate::{
 use self::options::ProductSearchOptions;
 
 #[derive(Deserialize)]
-struct SearchAjaxResult {
-    search_result: String,
-    // page_info: serde_json::Value,
+struct SearchPageInfo {
+    count: i32,
 }
 
+#[derive(Deserialize)]
+struct SearchAjaxResult {
+    search_result: String,
+    page_info: SearchPageInfo,
+}
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 #[derive(Debug)]
-pub struct SearchResult {
+pub struct SearchProductItem {
     pub id: String,
     pub title: String,
     pub circle_name: String,
@@ -35,6 +40,11 @@ pub struct SearchResult {
     // pub image_url: Option<String>,
 }
 
+#[derive(Debug)]
+pub struct SearchResult {
+    pub products: Vec<SearchProductItem>,
+    pub count: i32,
+}
 fn parse_count_str(str: &str) -> Result<i32> {
     str.replace(['(', ')', ','], "")
         .parse()
@@ -71,21 +81,21 @@ impl DlsiteClient {
     ///     dbg!(&product);
     /// }
     /// ```
-    pub async fn search_product(
-        &self,
-        options: &ProductSearchOptions,
-    ) -> Result<Vec<SearchResult>> {
+    pub async fn search_product(&self, options: &ProductSearchOptions) -> Result<SearchResult> {
         let json = self.get(&options.to_path()).await?;
         let json = serde_json::from_str::<SearchAjaxResult>(&json)?;
         let html = json.search_result;
+        let count = json.page_info.count;
 
-        parse_search_html(&html)
+        let products = parse_search_html(&html)?;
+
+        Ok(SearchResult { products, count })
     }
 }
 
-pub(crate) fn parse_search_html(html: &str) -> Result<Vec<SearchResult>> {
+pub(crate) fn parse_search_html(html: &str) -> Result<Vec<SearchProductItem>> {
     let html = Html::parse_fragment(html);
-    let mut result: Vec<SearchResult> = vec![];
+    let mut result: Vec<SearchProductItem> = vec![];
 
     for item_element in html.select(&Selector::parse("#search_result_img_box > li").unwrap()) {
         let product_id_e = item_element
@@ -115,7 +125,7 @@ pub(crate) fn parse_search_html(html: &str) -> Result<Vec<SearchResult>> {
             .to_parse_error("Failed to get product id")?
             .to_string();
 
-        result.push(SearchResult {
+        result.push(SearchProductItem {
             id: id.clone(),
             title: item_element
                 .select(&Selector::parse(".work_name a[title]").unwrap())
@@ -295,13 +305,15 @@ mod tests {
             .await
             .expect("Failed to search");
 
-        assert!(res.len() >= 8);
+        assert!(res.products.len() >= 8);
+        assert!(res.count >= 8);
 
-        res.iter()
+        res.products
+            .iter()
             .find(|r| r.id == "RJ403038")
             .expect("Expected to find RJ403038");
 
-        res.iter().for_each(|r| {
+        res.products.iter().for_each(|r| {
             if r.id == "RJ403038" {
                 assert_eq!(1320, r.price_original);
                 assert!(r.dl_count.unwrap() > 62000);
@@ -328,20 +340,20 @@ mod tests {
             .search_product(&opts)
             .await
             .expect("Failed to search page 1");
-        res.iter().for_each(|i| {
+        res.products.iter().for_each(|i| {
             url::Url::parse(&i.thumbnail_url).expect("Failed to parse url");
             dbg!(&i);
         });
-        assert_eq!(50, res.len());
+        assert_eq!(50, res.products.len());
 
         opts.page = Some(2);
         let res = client
             .search_product(&opts)
             .await
             .expect("Failed to search page 2");
-        res.iter().for_each(|i| {
+        res.products.iter().for_each(|i| {
             url::Url::parse(&i.thumbnail_url).expect("Failed to parse url");
         });
-        assert_eq!(50, res.len());
+        assert_eq!(50, res.products.len());
     }
 }

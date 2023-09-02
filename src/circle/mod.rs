@@ -10,16 +10,12 @@ use crate::{
 
 use self::options::CircleQueryOptions;
 
-pub struct CircleResult {
-    pub products: Vec<SearchResult>,
-}
-
 impl DlsiteClient {
     pub async fn get_circle(
         &self,
         circle_id: &str,
         options: &CircleQueryOptions,
-    ) -> Result<CircleResult> {
+    ) -> Result<SearchResult> {
         let html = self.get(&options.to_path(circle_id)).await?;
         let html = Html::parse_fragment(&html);
         let products_html = html
@@ -27,15 +23,25 @@ impl DlsiteClient {
             .next()
             .to_parse_error("Product list not found")?;
 
+        let count: i32 = html
+            .select(&Selector::parse(".page_total > strong").unwrap())
+            .next()
+            .to_parse_error("No total item count found")?
+            .text()
+            .next()
+            .to_parse_error("No total item count found 2")?
+            .parse()
+            .to_parse_error("Failed to parse total item count")?;
+
         let products = parse_search_html(&products_html.html())?;
 
-        Ok(CircleResult { products })
+        Ok(SearchResult { products, count })
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{DlsiteClient};
+    use crate::DlsiteClient;
 
     #[tokio::test]
     async fn get_circle_1() {
