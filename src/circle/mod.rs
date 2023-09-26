@@ -1,4 +1,4 @@
-mod options;
+pub mod options;
 
 use scraper::{Html, Selector};
 

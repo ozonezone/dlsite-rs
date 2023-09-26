@@ -1,4 +1,4 @@
-mod interface;
+pub mod interface;
 #[cfg(test)]
 mod test;
 
