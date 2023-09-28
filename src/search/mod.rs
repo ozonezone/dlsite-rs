@@ -27,6 +27,8 @@ struct SearchAjaxResult {
 pub struct SearchProductItem {
     pub id: String,
     pub title: String,
+    pub creator: Option<String>,
+    pub creator_omitted: Option<bool>,
     pub circle_name: String,
     pub circle_id: String,
     pub dl_count: Option<i32>,
@@ -37,7 +39,7 @@ pub struct SearchProductItem {
     pub age_category: AgeCategory,
     pub work_type: crate::interface::WorkType,
     pub thumbnail_url: String,
-    // pub image_url: Option<String>,
+    pub rating: Option<f32>, // pub image_url: Option<String>,
 }
 
 #[derive(Debug)]
@@ -113,6 +115,9 @@ pub(crate) fn parse_search_html(html: &str) -> Result<Vec<SearchProductItem>> {
             .select(&Selector::parse(".maker_name a").unwrap())
             .next()
             .to_parse_error("Failed to find maker element")?;
+        let author_e = item_element
+            .select(&Selector::parse(".author").unwrap())
+            .next();
 
         let price_e = item_element
             .select(&Selector::parse(".work_price").unwrap())
@@ -178,6 +183,34 @@ pub(crate) fn parse_search_html(html: &str) -> Result<Vec<SearchProductItem>> {
                 .next()
                 .to_parse_error("Failed to find maker id")?
                 .to_string(),
+            creator: {
+                if let Some(creator_e) = author_e {
+                    let name = creator_e
+                        .select(&Selector::parse("a").unwrap())
+                        .next()
+                        .to_parse_error("Failed to find creator")?
+                        .text()
+                        .next()
+                        .to_parse_error("Failed to find creator")?
+                        .to_string();
+                    Some(name)
+                } else {
+                    None
+                }
+            },
+            creator_omitted: {
+                if let Some(creator_e) = author_e {
+                    let omitted: _ = creator_e
+                        .value()
+                        .attr("class")
+                        .to_parse_error("Failed to find creator")?
+                        .split(" ")
+                        .any(|x| x == "omit");
+                    Some(omitted)
+                } else {
+                    None
+                }
+            },
             dl_count: {
                 if let Some(e) = item_element
                     .select(&Selector::parse(".work_dl span[class*=\"dl_count\"]").unwrap())
@@ -274,21 +307,41 @@ pub(crate) fn parse_search_html(html: &str) -> Result<Vec<SearchProductItem>> {
                     }
                 }
             },
-            // image_url: {
-            //     if let Some(e) = item_element
-            //         .select(&Selector::parse(".work_img_popover img").unwrap())
-            //         .next()
-            //     {
-            //         Some(
-            //             e.value()
-            //                 .attr("src")
-            //                 .to_parse_error("Failed to get image url")?
-            //                 .to_string(),
-            //         )
-            //     } else {
-            //         None
-            //     }
-            // },
+            rating: {
+                if let Some(e) = item_element
+                    .select(&Selector::parse(".work_rating .star_rating").unwrap())
+                    .next()
+                {
+                    e.value()
+                        .attr("class")
+                        .expect("Failed to get rating")
+                        .split(' ')
+                        .find_map(|c| {
+                            if let Some(c) = c.strip_prefix("star_") {
+                                if let Ok(r) = c.parse::<f32>() {
+                                    return Some(r / 10.0);
+                                }
+                            }
+                            None
+                        })
+                } else {
+                    None
+                }
+            }, // image_url: {
+               //     if let Some(e) = item_element
+               //         .select(&Selector::parse(".work_img_popover img").unwrap())
+               //         .next()
+               //     {
+               //         Some(
+               //             e.value()
+               //                 .attr("src")
+               //                 .to_parse_error("Failed to get image url")?
+               //                 .to_string(),
+               //         )
+               //     } else {
+               //         None
+               //     }
+               // },
         })
     }
 
@@ -325,9 +378,13 @@ mod tests {
                 assert!(r.dl_count.unwrap() > 62000);
                 assert!(r.rate_count.is_some());
                 assert!(r.review_count.is_some());
+                assert!(r.rating.is_some());
+                assert!(r.rating.is_some());
                 assert_eq!("RG62982", r.circle_id);
                 assert_eq!("Yostar", r.circle_name);
                 assert_eq!(crate::interface::WorkType::SOU, r.work_type);
+                assert_eq!("春花らん", r.creator.as_ref().unwrap());
+                assert!(!r.creator_omitted.unwrap());
             }
         });
     }
