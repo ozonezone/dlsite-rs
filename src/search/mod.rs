@@ -51,13 +51,14 @@ pub struct SearchResult {
 fn parse_count_str(str: &str) -> Result<i32> {
     str.replace(['(', ')', ','], "")
         .parse()
-        .to_parse_error("Failed to parse string")
+        .to_parse_error("Failed to parse string to count")
 }
 
 fn parse_num_str(str: &str) -> Result<i32> {
+    dbg!(str);
     str.replace(',', "")
         .parse()
-        .to_parse_error("Failed to parse string")
+        .to_parse_error("Failed to parse string to number")
 }
 
 impl DlsiteClient {
@@ -120,11 +121,11 @@ pub(crate) fn parse_search_html(html: &str) -> Result<Vec<SearchProductItem>> {
             .next();
 
         let price_e = item_element
-            .select(&Selector::parse(".work_price").unwrap())
+            .select(&Selector::parse(".work_price .work_price_base").unwrap())
             .next()
             .to_parse_error("Failed to find price element")?;
         let original_price_e = item_element
-            .select(&Selector::parse(".work_price_wrap .strike").unwrap())
+            .select(&Selector::parse(".work_price_wrap .strike .work_price_base").unwrap())
             .next();
         let (sale_price_e, original_price_e) = if let Some(e) = original_price_e {
             (Some(price_e), e)

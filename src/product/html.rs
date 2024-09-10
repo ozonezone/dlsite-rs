@@ -94,7 +94,7 @@ fn parse_product_html(html: &Html) -> Result<ProductHtml> {
         .inner_html();
     let age_rating = match &*age_rating {
         "全年齢" => AgeCategory::General,
-        "18禁" => AgeCategory::Adult,
+        "R18" => AgeCategory::Adult,
         _ => AgeCategory::R15,
     };
 
