@@ -55,7 +55,6 @@ fn parse_count_str(str: &str) -> Result<i32> {
 }
 
 fn parse_num_str(str: &str) -> Result<i32> {
-    dbg!(str);
     str.replace(',', "")
         .parse()
         .to_parse_error("Failed to parse string to number")
