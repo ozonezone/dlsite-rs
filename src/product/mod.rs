@@ -21,7 +21,7 @@ pub struct Product {
     pub title: String,
     pub work_type: WorkType,
     pub released_at: NaiveDate,
-    pub age_rating: AgeCategory,
+    pub age_rating: Option<AgeCategory>,
     pub genre: Vec<Genre>,
     pub circle_id: String,
     pub circle_name: String,
@@ -34,6 +34,9 @@ pub struct Product {
     pub images: Vec<String>,
     pub people: ProductPeople,
     pub reviewer_genre: Vec<(Genre, i32)>,
+    pub file_format: Vec<String>,
+    pub file_size: Option<String>,
+    pub product_format: Vec<String>,
 }
 
 /// People who contributed to a product on DLsite.
@@ -91,6 +94,9 @@ impl DlsiteClient {
             images: html_data.images,
             people: html_data.people,
             reviewer_genre: review_data.reviewer_genre_list.unwrap_or_default(),
+            file_format: html_data.file_format,
+            file_size: html_data.file_size,
+            product_format: html_data.product_format,
         })
     }
 }

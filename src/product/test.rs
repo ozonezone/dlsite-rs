@@ -25,7 +25,7 @@ async fn get_product_1_content() {
         res.released_at,
         NaiveDate::from_ymd_opt(2022, 7, 17).unwrap()
     );
-    assert_eq!(res.age_rating, AgeCategory::General);
+    assert_eq!(&res.age_rating, &Some(AgeCategory::General));
     assert_eq!(res.people.voice_actor, Some(vec!["春花らん".to_string()]));
     assert!(res.sale_count.unwrap() > 50000);
     assert!(res.genre.contains(&Genre {
@@ -57,7 +57,7 @@ async fn get_product_2() {
         res.released_at,
         NaiveDate::from_ymd_opt(2023, 1, 21).unwrap()
     );
-    assert_eq!(res.age_rating, AgeCategory::Adult);
+    assert_eq!(&res.age_rating, &Some(AgeCategory::Adult));
     assert_eq!(
         res.people.voice_actor,
         Some(vec!["丹羽うさぎ".to_string(), "藤堂れんげ".to_string()])
