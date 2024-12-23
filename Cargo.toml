@@ -7,7 +7,7 @@ license = "MIT"
 repository = "https://github.com/ozonezone/dlsite-rs"
 
 [dependencies]
-chrono = "0.4.39"
+chrono = { version = "0.4.39", features = ["serde"] }
 reqwest = { version = "0.12.9", features = [
   "rustls-tls",
 ], default-features = false }
