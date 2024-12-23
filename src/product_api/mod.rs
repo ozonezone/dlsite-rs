@@ -36,14 +36,14 @@ impl DlsiteClient {
             .get(&format!("/api/=/product.json?workno={}", id))
             .await?;
         let jd = &mut serde_json::Deserializer::from_str(&json);
-        #[cfg(feature = "warn")]
+        #[cfg(feature = "unknown-field-log")]
         let result: std::result::Result<Vec<ProductApiContent>, _> = serde_ignored::deserialize(
             jd,
             |path| {
                 tracing::error!("Ignored path: '{}' for '{id}'. Please report this to https://github.com/ozonezone/dlsite-rs", path.to_string());
             },
         );
-        #[cfg(not(feature = "warn"))]
+        #[cfg(not(feature = "unknown-field-log"))]
         let result: std::result::Result<Vec<ProductApiContent>, _> =
             serde_path_to_error::deserialize(jd);
         match result {

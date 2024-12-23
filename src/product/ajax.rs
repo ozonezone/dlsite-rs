@@ -5,7 +5,7 @@ use serde::{Deserialize, Deserializer};
 use crate::{interface::WorkType, DlsiteClient, DlsiteError, Result};
 
 #[derive(Debug, Clone, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct TranslationBonusLangs {
     pub child_count: i32,
     pub price: i32,
@@ -23,7 +23,7 @@ pub enum TranslationBonusLangsTypes {
     Map(HashMap<String, TranslationBonusLangs>),
 }
 #[derive(Debug, Clone, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct TranslationInfo {
     pub lang: Option<String>,
     pub original_workno: Option<String>,
@@ -40,7 +40,7 @@ pub struct TranslationInfo {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct Rank {
     pub rank_date: String,
     pub rank: i32,
@@ -49,7 +49,7 @@ pub struct Rank {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct CountDetail {
     pub count: i32,
     pub review_point: i32,
@@ -57,7 +57,7 @@ pub struct CountDetail {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct DlCountItem {
     pub edition_type: String,
     pub lang: String,
@@ -71,7 +71,7 @@ pub struct DlCountItem {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct VoicePack {
     pub parent_official_price: Option<i32>,
     pub child_price: i32,
@@ -83,7 +83,7 @@ pub struct VoicePack {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct SalesEndInfo {
     pub can_download: bool,
     pub not_download: bool,
@@ -92,7 +92,7 @@ pub struct SalesEndInfo {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct Bonus {
     pub end_date_str: String,
     pub dist_flg: String,
@@ -102,7 +102,7 @@ pub struct Bonus {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct LimitedFreeTerms {
     pub workno: String,
     pub id: i32,
@@ -113,7 +113,7 @@ pub struct LimitedFreeTerms {
 
 /// Data of a product from the AJAX API.
 #[derive(Debug, Clone, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct ProductAjax {
     pub is_downloadable_touch: Option<bool>,
     pub dl_count_total: Option<i32>,

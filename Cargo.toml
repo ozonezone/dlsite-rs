@@ -34,7 +34,9 @@ rand = "0.8"
 test-case = "3.1.0"
 
 [features]
-default = ["warn"]
-warn = ["dep:serde_ignored"]
+default = ["unknown-field-log"]
 serde = []
-strict = []
+# Outputs log when unknown fields are found in response.
+unknown-field-log = ["dep:serde_ignored"]
+# Fails when unknown fields are found in response.
+unknown-field-error = []

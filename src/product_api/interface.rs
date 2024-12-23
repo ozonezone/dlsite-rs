@@ -18,7 +18,7 @@ pub type ArrOrSingle<T> = Either<Vec<T>, T>;
 pub type HashMapOrArr<T> = Either<HashMap<String, T>, Vec<T>>;
 
 #[derive(Debug, Clone, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct LimitedFree {
     pub end_date: String,
     pub id: i32,
@@ -28,7 +28,7 @@ pub struct LimitedFree {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct WorkPackChild {
     pub inservice: i32,
     pub product_id: String,
@@ -38,7 +38,7 @@ pub struct WorkPackChild {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct LanguageEdition {
     pub display_order: i32,
     pub edition_id: i32,
@@ -49,7 +49,7 @@ pub struct LanguageEdition {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct Options {
     pub end_date: Option<String>,
     pub start_date: Option<String>,
@@ -59,7 +59,7 @@ pub struct Options {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct FrameSort {
     pub discount: String,
     pub pickup: String,
@@ -68,7 +68,7 @@ pub struct FrameSort {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct Discount {
     pub access_key: Option<String>,
     pub campaign_id: i32,
@@ -96,7 +96,7 @@ pub struct Discount {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct Coupling {
     pub coupling: String,
     pub coupling_id: String,
@@ -105,7 +105,7 @@ pub struct Coupling {
 
 #[serde_as]
 #[derive(Debug, Clone, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct ProductApiContent {
     pub age_category: AgeCategory,
     pub age_category_string: String,
@@ -382,7 +382,7 @@ pub struct ProductApiContent {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct SpecifiedVolumeSet {
     pub discount_price: i32,
     pub start_date: String,
@@ -391,7 +391,7 @@ pub struct SpecifiedVolumeSet {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct Content {
     pub workno: String,
     pub r#type: String,
@@ -416,7 +416,7 @@ pub struct Content {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct File {
     pub workno: Option<String>,
     pub r#type: Option<String>,
@@ -439,7 +439,7 @@ pub struct File {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct Image {
     pub id: Option<String>,
     pub file_name: Option<String>,
@@ -463,14 +463,14 @@ pub struct Image {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct EpubSample {
     pub volume_type: String,
     pub volume: Option<i64>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct WorkOption {
     pub id: String,
     pub options_id: String,
@@ -484,7 +484,7 @@ pub struct WorkOption {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct CustomGenre {
     pub genre_key: String,
     pub lang: String,
@@ -497,7 +497,7 @@ pub struct CustomGenre {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct TranslationInfo {
     pub is_translation_agree: bool,
     pub is_volunteer: bool,
@@ -514,7 +514,7 @@ pub struct TranslationInfo {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct TranslationBonus {
     pub child_count: i32,
     pub price: i32,
@@ -526,7 +526,7 @@ pub struct TranslationBonus {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct ReserveWork {
     pub workno: String,
     pub status: String,
@@ -543,7 +543,7 @@ pub struct ReserveWork {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct BookType {
     pub id: String,
     pub options_id: String,
@@ -557,7 +557,7 @@ pub struct BookType {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct Genre {
     pub name: String,
     pub id: i64,
@@ -566,13 +566,13 @@ pub struct Genre {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct WorkBrowseSetting {
     pub play_encode_type: Option<String>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct Author {
     pub author_id: String,
     pub sort_id: String,
@@ -588,7 +588,7 @@ pub struct Author {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct Creators {
     pub created_by: Option<Vec<Creator>>,
     pub voice_by: Option<Vec<Creator>>,
@@ -597,7 +597,7 @@ pub struct Creators {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[cfg_attr(feature = "strict", serde(deny_unknown_fields))]
+#[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
 pub struct Creator {
     pub id: String,
     pub name: String,
