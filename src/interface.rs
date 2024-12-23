@@ -77,7 +77,7 @@ pub enum AgeCategory {
 }
 
 /// Work category (parent category)
-#[derive(Display, EnumString, DeserializeFromStr, Debug, Clone)]
+#[derive(Display, EnumString, PartialEq, DeserializeFromStr, Debug, Clone)]
 #[strum(serialize_all = "snake_case")]
 pub enum WorkCategory {
     /// 同人
@@ -94,7 +94,7 @@ pub enum WorkCategory {
 }
 
 /// File type
-#[derive(Display, EnumString, Debug, Clone, DeserializeFromStr)]
+#[derive(Display, EnumString, PartialEq, Debug, Clone, DeserializeFromStr)]
 pub enum FileType {
     EXE,
     HTI,
