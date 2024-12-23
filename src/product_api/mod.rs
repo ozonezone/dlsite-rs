@@ -37,10 +37,12 @@ impl DlsiteClient {
             .await?;
         let jd = &mut serde_json::Deserializer::from_str(&json);
         #[cfg(feature = "warn")]
-        let result: std::result::Result<Vec<ProductApiContent>, _> =
-            serde_ignored::deserialize(jd, |path| {
-                tracing::error!("Ignored path: {}", path.to_string());
-            });
+        let result: std::result::Result<Vec<ProductApiContent>, _> = serde_ignored::deserialize(
+            jd,
+            |path| {
+                tracing::error!("Ignored path: '{}' for '{id}'. Please report this to https://github.com/ozonezone/dlsite-rs", path.to_string());
+            },
+        );
         #[cfg(not(feature = "warn"))]
         let result: std::result::Result<Vec<ProductApiContent>, _> =
             serde_path_to_error::deserialize(jd);

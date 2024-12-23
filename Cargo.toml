@@ -34,7 +34,7 @@ rand = "0.8"
 test-case = "3.1.0"
 
 [features]
-default = []
+default = ["warn"]
 warn = ["dep:serde_ignored"]
 serde = []
 strict = []
