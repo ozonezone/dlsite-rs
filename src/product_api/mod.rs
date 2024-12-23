@@ -36,9 +36,14 @@ impl DlsiteClient {
             .get(&format!("/api/=/product.json?workno={}", id))
             .await?;
         let jd = &mut serde_json::Deserializer::from_str(&json);
+        #[cfg(feature = "warn")]
+        let result: std::result::Result<Vec<ProductApiContent>, _> =
+            serde_ignored::deserialize(jd, |path| {
+                tracing::error!("Ignored path: {}", path.to_string());
+            });
+        #[cfg(not(feature = "warn"))]
         let result: std::result::Result<Vec<ProductApiContent>, _> =
             serde_path_to_error::deserialize(jd);
-
         match result {
             Ok(result) => {
                 let Some(json) = result.into_iter().next() else {

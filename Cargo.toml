@@ -24,6 +24,7 @@ strum = { version = "0.26.3", features = ["derive"] }
 serde_with = { version = "3.11.0", features = ["macros"] }
 serde_path_to_error = "0.1"
 serde_repr = "0.1.19"
+serde_ignored = { version = "0.1.10", optional = true }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["full"] }
@@ -34,5 +35,6 @@ test-case = "3.1.0"
 
 [features]
 default = []
+warn = ["dep:serde_ignored"]
 serde = []
 strict = []
