@@ -6,8 +6,106 @@ use serde_with::{formats::PreferOne, serde_as, DefaultOnError, OneOrMany};
 
 use crate::interface::{AgeCategory, FileType, WorkCategory, WorkType};
 
+pub type StrOrBool = TwoPossibility<String, bool>;
+pub type ArrOrSingle<T> = TwoPossibility<Vec<T>, T>;
+pub type HashMapOrArr<T> = TwoPossibility<HashMap<String, T>, Vec<T>>;
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(untagged)]
+pub enum TwoPossibility<T, V> {
+    One(T),
+    Two(V),
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct LimitedFree {
+    pub end_date: String,
+    pub id: i32,
+    pub original_workno: Option<String>,
+    pub workno: String,
+    pub start_date: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct WorkPackChild {
+    pub inservice: i32,
+    pub product_id: String,
+    pub product_name: String,
+    pub work_name: String,
+    pub workno: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct LanguageEdition {
+    pub display_order: i32,
+    pub edition_id: i32,
+    pub edition_type: String,
+    pub label: String,
+    pub lang: String,
+    pub workno: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Options {
+    pub end_date: Option<String>,
+    pub start_date: Option<String>,
+    pub frame_sort: FrameSort,
+    pub pickups: Option<Vec<String>>,
+    pub timesale_search: Option<bool>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct FrameSort {
+    pub discount: String,
+    pub pickup: String,
+    pub pickup_free: String,
+    pub related: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Discount {
+    pub access_key: Option<String>,
+    pub campaign_id: i32,
+    pub campaign_price: i32,
+    pub campaign_trade_price: i32,
+    pub del_flg: String,
+    pub discount_rate: i32,
+    pub end_date: i32,
+    pub id: String,
+    pub insert_date: String,
+    pub insert_id: Option<String>,
+    pub limit_dl_count: Option<i32>,
+    pub note: Option<()>,
+    pub options: ArrOrSingle<Options>,
+    pub restore_price: i32,
+    pub restore_trade_price: i32,
+    pub show_end_date_days: String,
+    pub start_date: i32,
+    pub status: String,
+    pub title: String,
+    pub trade_price_type: String,
+    pub update_date: String,
+    pub update_id: Option<String>,
+    pub workno: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Coupling {
+    pub coupling: String,
+    pub coupling_id: String,
+    pub show_coupling: String,
+}
+
 #[serde_as]
 #[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ProductApiContent {
     pub age_category: AgeCategory,
     pub age_category_string: String,
@@ -18,12 +116,12 @@ pub struct ProductApiContent {
     pub books_id: Option<String>,
     pub brand_id: Option<String>,
     pub circle_id: Option<String>,
-    pub coupling: Vec<Value>,
+    pub coupling: Vec<Coupling>,
     pub cpu: Option<String>,
     pub default_point: i64,
     pub directed_by: Option<String>,
     pub directx: Option<String>,
-    pub discount: Option<Value>,
+    pub discount: Option<Discount>,
     pub dist_flag: i64,
     pub dl_format: i64,
     pub etc: Option<String>,
@@ -40,8 +138,7 @@ pub struct ProductApiContent {
     pub label_id: Option<String>,
     pub label_name: Option<String>,
     pub machine: Option<String>,
-    // pub machine_string_list: HashMap<String, Option<String>> | Vec<>,
-    pub machine_string_list: Value,
+    pub machine_string_list: HashMapOrArr<Option<String>>,
     pub memory: Option<String>,
     pub message_skip: Option<String>,
     pub mini_resolution: Option<String>,
@@ -127,7 +224,7 @@ pub struct ProductApiContent {
     pub trials: Option<Vec<File>>,
     #[serde_as(deserialize_as = "DefaultOnError")]
     pub trials_touch: Option<Vec<File>>,
-    pub movies: bool,
+    pub movies: TwoPossibility<bool, Vec<File>>,
     #[serde_as(deserialize_as = "DefaultOnError")]
     pub epub_sample: Option<EpubSample>,
     pub sample_type: String,
@@ -154,7 +251,7 @@ pub struct ProductApiContent {
     pub work_rentals: Vec<String>,
     pub is_rental_work: bool,
     pub translation_info: TranslationInfo,
-    pub display_order: i64,
+    pub display_order: Option<i64>,
     pub is_oauth_work: Option<bool>,
     pub is_show_rate: bool,
     pub rate_average_star: i64,
@@ -170,18 +267,16 @@ pub struct ProductApiContent {
     pub rank_day: Option<i64>,
     pub rank_day_date: Option<String>,
     pub is_pack_child: bool,
-    pub work_pack_parent: Vec<String>,
     pub is_pack_parent: bool,
-    pub work_pack_children: Vec<String>,
+    pub work_pack_children: TwoPossibility<Vec<String>, HashMap<String, WorkPackChild>>,
     pub pack_type: Option<String>,
     pub is_voice_pack: bool,
     pub voice_pack_parent: Vec<String>,
     pub voice_pack_child: Vec<String>,
     pub free: bool,
     pub free_only: bool,
-    pub free_end_date: Option<bool>,
+    pub free_end_date: Option<StrOrBool>,
     pub has_free_download: bool,
-    pub limited_free_terms: Vec<String>,
     #[serde_as(deserialize_as = "DefaultOnError")]
     #[serde(rename = "creaters")]
     pub creators: Option<Creators>,
@@ -203,7 +298,7 @@ pub struct ProductApiContent {
     pub is_reserve_work: bool,
     pub is_reservable: bool,
     pub is_downloadable_reserve_work: bool,
-    pub bonus_workno: bool,
+    pub bonus_workno: TwoPossibility<bool, String>,
     pub bonus_work: Option<String>,
     pub is_bonus_work: bool,
     pub is_downloadable_bonus_work: bool,
@@ -213,7 +308,7 @@ pub struct ProductApiContent {
     pub is_tl: bool,
     pub is_drama_work: bool,
     pub is_display_notice: bool,
-    pub touch_style1: Vec<Value>,
+    pub touch_style1: Vec<String>,
     pub is_bulkbuy: bool,
     pub bulkbuy_key: Option<String>,
     pub bulkbuy_title: Option<String>,
@@ -232,12 +327,12 @@ pub struct ProductApiContent {
     pub bulkbuy_point: i64,
     pub genres: Vec<Genre>,
     pub custom_genres: Vec<CustomGenre>,
-    pub editions: Vec<Value>,
-    pub language_editions: Vec<Value>,
+    pub editions: HashMapOrArr<LanguageEdition>,
+    pub language_editions: HashMapOrArr<LanguageEdition>,
     pub display_options: Vec<String>,
-    pub work_browse_setting: Value,
     pub is_limit_work: bool,
     pub is_limit_sales: bool,
+    pub work_browse_setting: HashMapOrArr<WorkBrowseSetting>,
     pub is_limit_in_stock: bool,
     pub limit_start_date: Option<String>,
     pub limit_end_date: Option<String>,
@@ -247,7 +342,7 @@ pub struct ProductApiContent {
     pub limit_note: Option<String>,
     pub is_timesale_work: bool,
     pub timesale_dl_count: i64,
-    pub timesale_limit_dl_count: Option<String>,
+    pub timesale_limit_dl_count: Option<i32>,
     pub timesale_stock: i64,
     pub timesale_start_date: Option<String>,
     pub timesale_end_date: Option<String>,
@@ -263,9 +358,40 @@ pub struct ProductApiContent {
     pub authors: Option<Vec<Author>>,
     pub product_dir: String,
     pub srcset: Option<String>,
+    pub alt_name_masked: String,
+    pub work_pack_parent: TwoPossibility<Vec<String>, HashMap<String, WorkPackChild>>,
+    pub limited_free_terms: ArrOrSingle<LimitedFree>,
+    pub limited_free_work: ArrOrSingle<LimitedFree>,
+    pub intro_masked: Option<()>,
+    pub limit_sale_id: Option<()>,
+    pub specified_volume_sets: Vec<SpecifiedVolumeSet>,
+    pub series_name_masked: Option<String>,
+    pub is_ios_only_work: bool,
+    pub specified_volume_set_max_discount_rate: Option<()>,
+    pub has_specified_volume_set: bool,
+    pub work_name_masked: String,
+    pub introductions_masked: Option<()>,
+    pub intro_s_masked: Option<String>,
+    pub work_type_special_masked: Option<String>,
+    pub title_name_masked: Option<String>,
+    pub currency_price: HashMap<String, f64>,
+    pub currency_official_price: HashMap<String, f64>,
+    pub is_android_or_ios_only_work: bool,
+    pub genres_replaced: Vec<Genre>,
+    pub limit_sold_dl_count: i32,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct SpecifiedVolumeSet {
+    pub discount_price: i32,
+    pub start_date: String,
+    pub id: i32,
+    pub end_date: String,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Content {
     pub workno: String,
     pub r#type: String,
@@ -281,9 +407,16 @@ pub struct Content {
     #[serde(rename = "upper(work_files.type)")]
     pub upper_work_files_type: String,
     pub extension: String,
+    name_url: Option<String>,
+    title: Option<String>,
+    filesize: Option<String>,
+    name: Option<String>,
+    filepath: Option<String>,
+    size: Option<String>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct File {
     pub workno: Option<String>,
     pub r#type: Option<String>,
@@ -306,17 +439,38 @@ pub struct File {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Image {
+    id: Option<String>,
+    file_name: Option<String>,
+    height: Option<String>,
+    update_date: Option<String>,
+    file_size: Option<String>,
+    hash: Option<String>,
+    display_mode: Option<String>,
+    relative_url: Option<String>,
+    file_size_unit: Option<String>,
+    width: Option<String>,
+    path_short: Option<String>,
+    #[serde(rename = "upper(work_files.type)")]
+    upper_work_files_type: Option<String>,
+    #[serde(rename = "type")]
+    type_: Option<String>,
+    resize_url: Option<String>,
+    workno: Option<String>,
+    extension: Option<String>,
     pub url: String,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct EpubSample {
     pub volume_type: String,
     pub volume: Option<i64>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct WorkOption {
     pub id: String,
     pub options_id: String,
@@ -330,18 +484,20 @@ pub struct WorkOption {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct CustomGenre {
     pub genre_key: String,
     pub lang: String,
     pub name: String,
-    pub layout: Value,
+    pub layout: (),
     pub status: String,
     pub is_active: i64,
     pub start_date: String,
     pub end_date: String,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct TranslationInfo {
     pub is_translation_agree: bool,
     pub is_volunteer: bool,
@@ -353,9 +509,24 @@ pub struct TranslationInfo {
     pub child_worknos: Vec<String>,
     pub lang: Option<String>,
     pub production_trade_price_rate: i64,
+    pub translation_bonus_langs: HashMapOrArr<TranslationBonus>,
+    pub is_translation_bonus_child: bool,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct TranslationBonus {
+    pub child_count: i32,
+    pub price: i32,
+    pub price_in_tax: i32,
+    pub price_tax: i32,
+    pub recipient_available_count: i32,
+    pub recipient_max: i32,
+    pub status: String,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ReserveWork {
     pub workno: String,
     pub status: String,
@@ -368,10 +539,11 @@ pub struct ReserveWork {
     pub note: Option<String>,
     pub del_flg: String,
     pub update_date: String,
-    pub insert_date: String,
+    pub insert_date: Option<String>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct BookType {
     pub id: String,
     pub options_id: String,
@@ -385,6 +557,7 @@ pub struct BookType {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Genre {
     pub name: String,
     pub id: i64,
@@ -393,11 +566,13 @@ pub struct Genre {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct WorkBrowseSetting {
-    pub play_encode_type: String,
+    pub play_encode_type: Option<String>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Author {
     pub author_id: String,
     pub sort_id: String,
@@ -408,10 +583,12 @@ pub struct Author {
     pub author_name: String,
     pub author_role_name: String,
     pub author_role_omission_name: String,
-    pub upper_books_work_author_author_id: String,
+    #[serde(rename = "upper(books_work_author.author_id)")]
+    pub upper_books_work_author_author_id: Option<String>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Creators {
     pub created_by: Option<Vec<Creator>>,
     pub voice_by: Option<Vec<Creator>>,
@@ -420,6 +597,7 @@ pub struct Creators {
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Creator {
     pub id: String,
     pub name: String,
