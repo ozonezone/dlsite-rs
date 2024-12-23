@@ -22,8 +22,8 @@ struct SearchAjaxResult {
     search_result: String,
     page_info: SearchPageInfo,
 }
-#[cfg_attr(feature = "serde", derive(serde::Serialize))]
-#[derive(Debug)]
+
+#[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct SearchProductItem {
     pub id: String,
     pub title: String,

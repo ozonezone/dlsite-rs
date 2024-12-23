@@ -5,8 +5,7 @@ use serde_with::DeserializeFromStr;
 use strum::{Display, EnumString};
 
 /// Work category
-#[cfg_attr(feature = "serde", derive(serde::Serialize))]
-#[derive(Display, EnumString, Debug, PartialEq, Clone, DeserializeFromStr)]
+#[derive(Display, EnumString, Debug, PartialEq, Clone, DeserializeFromStr, serde::Serialize)]
 pub enum WorkType {
     /// アクション
     ACN,

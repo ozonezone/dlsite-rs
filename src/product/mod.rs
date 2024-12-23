@@ -14,8 +14,7 @@ pub mod review;
 mod test;
 
 /// A product on DLsite.
-#[cfg_attr(feature = "serde", derive(serde::Serialize))]
-#[derive(Debug)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct Product {
     pub id: String,
     pub title: String,
@@ -40,8 +39,7 @@ pub struct Product {
 }
 
 /// People who contributed to a product on DLsite.
-#[cfg_attr(feature = "serde", derive(serde::Serialize))]
-#[derive(Debug)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct ProductPeople {
     pub author: Option<Vec<String>>,
     pub scenario: Option<Vec<String>>,
