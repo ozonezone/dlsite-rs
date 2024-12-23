@@ -1,8 +1,21 @@
-//! ger_product related informations.
+//! Product data got using "scraping" method.
+//!
+//! There are two way to get product data from DLsite.
+//! 1. "scraping" method: Using HTML scraping and "ajax" API. This is similar to how a browser gets data.
+//! 2. "api" method: Utilizes api used by DLsite app.
+//!
+//! Each method has its own pros and cons. By using first method, you can get more detailed data.
+//! But it is slower because it makes multiple requests and also fragile because it depends on HTML structure.
+//! By using second method, you can get data faster and more stable. But you can't get some
+//! additional data.
+//!
+//! This module provides functions to get product data using first method.
+//! For second method, see [`crate::product_api`].
 
 use crate::{
     genre::Genre,
     interface::{AgeCategory, WorkType},
+    utils::ToParseError as _,
     DlsiteClient, Result,
 };
 use chrono::NaiveDate;
@@ -47,9 +60,16 @@ pub struct ProductPeople {
     pub voice_actor: Option<Vec<String>>,
 }
 
+/// Get product data using "scraping" method.
+///
+/// See [`crate::product`] for more information.
 impl DlsiteClient {
     /// Get information about a product (also called "work").
-    /// This function will make 3 requests to DLsite: one to get the HTML page, one to get the AJAX data and one to get the review data.
+    /// This function will make 3 requests to DLsite.
+    /// 1. Get the HTML page of the product. This data can be get using [`DlsiteClient::get_product_html`].
+    /// 2. Get the AJAX data of the product. This data can be get using [`DlsiteClient::get_product_ajax`].
+    /// 3. Get the review data of the product. This data can be get using [`DlsiteClient::get_product_review`].
+    ///
     /// Especially, review data can be used as independent information.
     ///
     /// # Arguments
@@ -95,5 +115,64 @@ impl DlsiteClient {
             file_size: html_data.file_size,
             product_format: html_data.product_format,
         })
+    }
+
+    /// Scrapes the HTML page of a product and parses it into a [`html::ProductHtml`] struct.
+    #[tracing::instrument(err)]
+    pub async fn get_product_html(&self, product_id: &str) -> Result<html::ProductHtml> {
+        let path = format!("/work/=/product_id/{}", product_id);
+        let html = self.get(&path).await?;
+        let html = scraper::Html::parse_document(&html);
+
+        html::parse_product_html(&html)
+    }
+
+    /// Get product reviews and related informations using ajax api.
+    ///
+    /// # Arguments
+    /// * `product_id` - Product ID.
+    /// * `mix_pickup` - Mixes picked up review. To get user genre, this must be true.
+    /// * `order` - Sort order of reviews.
+    /// * `limit` - Number of reviews to get.
+    /// * `page` - Page number.
+    ///
+    /// # Returns
+    /// * `ProductReview` - Product reviews and related informations.
+    #[tracing::instrument(err, skip_all)]
+    pub async fn get_product_review(
+        &self,
+        product_id: &str,
+        limit: u32,
+        page: u32,
+        mix_pickup: bool,
+        order: review::ReviewSortOrder,
+    ) -> Result<review::ProductReview> {
+        let order_str = match order {
+            review::ReviewSortOrder::New => "regist_d",
+            review::ReviewSortOrder::Top => "top",
+        };
+
+        let path = format!(
+            "/api/review?product_id={}&limit={}&mix_pickup={}&page={}&order={}&locale=ja_JP",
+            product_id, limit, mix_pickup, page, order_str
+        );
+        let json_str = self.get(&path).await?;
+        let json: serde_json::Value = serde_json::from_str(&json_str)?;
+
+        if !json["is_success"]
+            .as_bool()
+            .to_parse_error("Failed to parse revire json")?
+        {
+            let message = json["error_msg"]
+                .as_str()
+                .unwrap_or("Failed to get error message");
+            return Err(crate::DlsiteError::ServerError(format!(
+                "Failed to get review: {}",
+                message
+            )));
+        }
+
+        let json: review::ProductReview = serde_json::from_value(json)?;
+        Ok(json)
     }
 }

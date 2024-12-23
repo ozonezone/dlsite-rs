@@ -38,35 +38,7 @@ pub struct ProductHtml {
     pub lang_refs: Vec<(String, String)>,
 }
 
-impl DlsiteClient {
-    /// Get and parse the HTML page of a product.
-    #[tracing::instrument(err)]
-    pub async fn get_product_html(&self, product_id: &str) -> Result<ProductHtml> {
-        let path = format!("/work/=/product_id/{}", product_id);
-        let html = self.get(&path).await?;
-        let html = Html::parse_document(&html);
-
-        parse_product_html(&html)
-    }
-}
-
-fn get_work_outline_table(html: &Html) -> HashMap<String, ElementRef> {
-    let mut map = HashMap::new();
-    for element in html.select(&Selector::parse("#work_outline tr").unwrap()) {
-        let th = element.select(&Selector::parse("th").unwrap()).next();
-        let td = element.select(&Selector::parse("td").unwrap()).next();
-        if let (Some(th), Some(td)) = (th, td) {
-            let th = th.text().next();
-            if let Some(th) = th {
-                let th = th.trim().to_string();
-                map.insert(th, td);
-            }
-        }
-    }
-    map
-}
-
-fn parse_product_html(html: &Html) -> Result<ProductHtml> {
+pub(super) fn parse_product_html(html: &Html) -> Result<ProductHtml> {
     let circle = html
         .select(&Selector::parse("#work_maker .maker_name a").unwrap())
         .next()
@@ -305,4 +277,20 @@ pub(super) fn parse_product_people(html: &Html) -> Result<ProductPeople> {
         illustrator: get_people!("イラスト"),
         voice_actor: get_people!("声優"),
     })
+}
+
+fn get_work_outline_table(html: &Html) -> HashMap<String, ElementRef> {
+    let mut map = HashMap::new();
+    for element in html.select(&Selector::parse("#work_outline tr").unwrap()) {
+        let th = element.select(&Selector::parse("th").unwrap()).next();
+        let td = element.select(&Selector::parse("td").unwrap()).next();
+        if let (Some(th), Some(td)) = (th, td) {
+            let th = th.text().next();
+            if let Some(th) = th {
+                let th = th.trim().to_string();
+                map.insert(th, td);
+            }
+        }
+    }
+    map
 }

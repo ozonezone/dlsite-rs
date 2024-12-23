@@ -1,3 +1,7 @@
+//! Product data got using "api" method.
+//!
+//! See [`crate::product`] for more information.
+
 pub mod interface;
 #[cfg(test)]
 mod test;
@@ -6,6 +10,9 @@ use crate::{DlsiteClient, DlsiteError, Result};
 
 use self::interface::ProductApiContent;
 
+/// Get product data using "api" method.
+///
+/// For more information, see [`crate::product_api`].
 impl DlsiteClient {
     /// Get product detail using api.
     ///
@@ -13,12 +20,10 @@ impl DlsiteClient {
     /// * `id` - Product ID.
     ///
     /// # Returns
-    /// * `ProductApiContent` - Product details.
+    /// * [`ProductApiContent`] - Product details.
     ///
     /// # Note
     /// This api does not return dl count.
-    /// And because of confusing specification of api, serde::Value is used in some place.
-    /// Instead of this you also can use `DlsiteClient.get_product` which scrapes html.
     ///
     /// # Example
     /// ```

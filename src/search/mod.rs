@@ -1,3 +1,5 @@
+//! Search api related interfaces
+
 pub(crate) mod macros;
 pub mod options;
 

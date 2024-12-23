@@ -1,3 +1,5 @@
+//! Circle api related interfaces
+
 pub mod options;
 
 use scraper::{Html, Selector};
@@ -11,6 +13,7 @@ use crate::{
 use self::options::CircleQueryOptions;
 
 impl DlsiteClient {
+    /// Search circle-related products.
     pub async fn get_circle(
         &self,
         circle_id: &str,
