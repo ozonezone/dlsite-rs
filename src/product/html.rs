@@ -103,7 +103,7 @@ fn parse_product_html(html: &Html) -> Result<ProductHtml> {
     work_outline_table.remove("声優");
     let file_size = work_outline_table
         .remove("ファイル容量")
-        .map(|v| {
+        .and_then(|v| {
             v.select(&Selector::parse("div").unwrap()).next().map(|v| {
                 Some(
                     v.text()
@@ -114,12 +114,11 @@ fn parse_product_html(html: &Html) -> Result<ProductHtml> {
                 )
             })
         })
-        .flatten()
         .flatten();
     let work_genre_extractor = |work_outline_table: &mut HashMap<String, ElementRef>, key: &str| {
         work_outline_table
             .remove(key)
-            .map(|v| {
+            .and_then(|v| {
                 v.select(&Selector::parse(".work_genre").unwrap())
                     .next()
                     .map(|v| {
@@ -128,7 +127,6 @@ fn parse_product_html(html: &Html) -> Result<ProductHtml> {
                             .collect::<Vec<_>>()
                     })
             })
-            .flatten()
             .unwrap_or_default()
     };
     let a_extractor = |work_outline_table: &mut HashMap<String, ElementRef>, key: &str| {
@@ -159,13 +157,12 @@ fn parse_product_html(html: &Html) -> Result<ProductHtml> {
     let langs = work_genre_extractor(&mut work_outline_table, "対応言語");
     let lang_refs = html
         .select(&Selector::parse(".work_edition .type_trans > a").unwrap())
-        .map(|v| {
+        .filter_map(|v| {
             Some((
                 v.text().collect::<String>().trim().to_owned(),
                 v.attr("href")?.to_owned(),
             ))
         })
-        .flatten()
         .collect::<Vec<_>>();
     let music = a_extractor(&mut work_outline_table, "音楽");
     let sys_req = work_outline_table
@@ -174,7 +171,7 @@ fn parse_product_html(html: &Html) -> Result<ProductHtml> {
     let coupling = a_extractor(&mut work_outline_table, "カップリング");
     let file_format = work_outline_table
         .remove("ファイル形式")
-        .map(|v| {
+        .and_then(|v| {
             v.select(&Selector::parse(".work_genre").unwrap())
                 .next()
                 .map(|v| {
@@ -187,7 +184,6 @@ fn parse_product_html(html: &Html) -> Result<ProductHtml> {
                         .collect::<Vec<_>>()
                 })
         })
-        .flatten()
         .unwrap_or_default();
     let age_rating = work_outline_table
         .remove("年齢指定")
@@ -215,11 +211,7 @@ fn parse_product_html(html: &Html) -> Result<ProductHtml> {
     };
 
     let series = work_outline_table.remove("シリーズ名");
-    let series = if let Some(series) = series {
-        Some(series.text().collect::<String>().trim().to_owned())
-    } else {
-        None
-    };
+    let series = series.map(|series| series.text().collect::<String>().trim().to_owned());
 
     let released_at = work_outline_table
         .remove("販売日")
@@ -257,7 +249,7 @@ fn parse_product_html(html: &Html) -> Result<ProductHtml> {
                 .collect::<Vec<_>>()
         })
         .unwrap_or_default();
-    if work_outline_table.len() > 0 {
+    if !work_outline_table.is_empty() {
         return Err(DlsiteError::ParseError(format!(
             "failed to parse tags {:?}",
             work_outline_table.len()

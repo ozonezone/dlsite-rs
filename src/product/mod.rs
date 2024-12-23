@@ -53,8 +53,7 @@ impl DlsiteClient {
     /// Especially, review data can be used as independent information.
     ///
     /// # Arguments
-    /// * `product_id` - The product ID to get information about. Example: `RJ123456`.
-    /// NOTE: This must be capitalized.
+    /// * `product_id` - The product ID to get information about. Example: `RJ123456`. NOTE: This must be capitalized.
     ///
     /// # Example
     /// ```

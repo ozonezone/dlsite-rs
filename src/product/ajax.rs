@@ -1,6 +1,7 @@
 use std::{collections::HashMap, str::FromStr};
 
 use serde::{Deserialize, Deserializer};
+use serde_json::Value;
 
 use crate::{interface::WorkType, DlsiteClient, DlsiteError, Result};
 
@@ -209,11 +210,11 @@ pub struct ProductAjax {
     #[serde(deserialize_with = "deserialize_work_type")]
     pub work_type: WorkType,
 
-    // inner type unclear
-    product_point_rate: Option<()>,
-    discount_caption: Option<()>,
-    gift: Vec<()>,
-    work_rentals: Vec<()>,
+    // TODO: Investigate these fields
+    pub product_point_rate: Option<Value>,
+    pub discount_caption: Option<Value>,
+    pub gift: Vec<Value>,
+    pub work_rentals: Vec<Value>,
 }
 
 fn deserialize_work_type<'de, D>(deserializer: D) -> std::result::Result<WorkType, D::Error>

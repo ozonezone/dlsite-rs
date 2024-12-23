@@ -200,7 +200,7 @@ pub(crate) fn parse_search_html(html: &str) -> Result<Vec<SearchProductItem>> {
             },
             creator_omitted: {
                 if let Some(creator_e) = author_e {
-                    let omitted: _ = creator_e
+                    let omitted = creator_e
                         .value()
                         .attr("class")
                         .to_parse_error("Failed to find creator")?
