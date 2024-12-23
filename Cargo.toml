@@ -24,7 +24,6 @@ strum = { version = "0.26.3", features = ["derive"] }
 serde_with = { version = "3.11.0", features = ["macros"] }
 serde_path_to_error = "0.1"
 serde_repr = "0.1.19"
-either = { version = "1.13.0", features = ["serde"] }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["full"] }

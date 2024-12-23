@@ -1,11 +1,17 @@
 use std::collections::HashMap;
 
-use either::Either;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_with::{formats::PreferOne, serde_as, DefaultOnError, OneOrMany};
 
 use crate::interface::{AgeCategory, FileType, WorkCategory, WorkType};
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(untagged)]
+pub enum Either<T, V> {
+    Left(T),
+    Right(V),
+}
 
 pub type StrOrBool = Either<String, bool>;
 pub type ArrOrSingle<T> = Either<Vec<T>, T>;
