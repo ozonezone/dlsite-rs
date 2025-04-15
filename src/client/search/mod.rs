@@ -1,4 +1,4 @@
-//! Search api related interfaces
+//! Interfaces related to search feature. For more information, see [`SearchClient`].
 
 pub(crate) mod macros;
 pub mod options;
@@ -14,6 +14,11 @@ use crate::{
 };
 
 use self::options::ProductSearchOptions;
+
+/// Client to search products on DLsite.
+pub struct SearchClient<'a> {
+    pub(crate) c: &'a DlsiteClient,
+}
 
 #[derive(Deserialize)]
 struct SearchPageInfo {
@@ -63,7 +68,7 @@ fn parse_num_str(str: &str) -> Result<i32> {
         .to_parse_error("Failed to parse string to number")
 }
 
-impl DlsiteClient {
+impl<'a> SearchClient<'a> {
     /// Search products on DLsite.
     ///
     /// # Arguments
@@ -89,7 +94,7 @@ impl DlsiteClient {
     /// ```
     pub async fn search_product(&self, options: &ProductSearchOptions) -> Result<SearchResult> {
         let query_path = options.to_path();
-        let json = self.get(&query_path).await?;
+        let json = self.c.get(&query_path).await?;
         let json = serde_json::from_str::<SearchAjaxResult>(&json)?;
         let html = json.search_result;
         let count = json.page_info.count;
@@ -359,6 +364,7 @@ mod tests {
     async fn search_product_1() {
         let client = DlsiteClient::default();
         let res = client
+            .search()
             .search_product(&super::ProductSearchOptions {
                 sex_category: Some(vec![SexCategory::Male]),
                 keyword: Some("ユウカASMR".to_string()),
@@ -403,6 +409,7 @@ mod tests {
         };
 
         let res = client
+            .search()
             .search_product(&opts)
             .await
             .expect("Failed to search page 1");
@@ -414,6 +421,7 @@ mod tests {
 
         opts.page = Some(2);
         let res = client
+            .search()
             .search_product(&opts)
             .await
             .expect("Failed to search page 2");

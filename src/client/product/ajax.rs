@@ -3,7 +3,9 @@ use std::{collections::HashMap, str::FromStr};
 use serde::{Deserialize, Deserializer};
 use serde_json::Value;
 
-use crate::{client::common::WorkType, error::Result, DlsiteClient, DlsiteError};
+use crate::{client::common::WorkType, error::Result, DlsiteError};
+
+use super::ProductClient;
 
 #[derive(Debug, Clone, Deserialize)]
 #[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
@@ -226,7 +228,7 @@ where
     WorkType::from_str(&s).map_err(serde::de::Error::custom)
 }
 
-impl DlsiteClient {
+impl<'a> ProductClient<'a> {
     /// Get the AJAX data of multiple products.
     #[tracing::instrument(err)]
     pub async fn get_products_ajax(
@@ -234,7 +236,7 @@ impl DlsiteClient {
         product_ids: Vec<&str>,
     ) -> Result<HashMap<String, ProductAjax>> {
         let path = format!("/product/info/ajax?product_id={}", product_ids.join(","));
-        let ajax_json_str = self.get(&path).await?;
+        let ajax_json_str = self.c.get(&path).await?;
 
         let json: HashMap<String, ProductAjax> = serde_json::from_str(&ajax_json_str)?;
 
@@ -243,7 +245,7 @@ impl DlsiteClient {
     /// Get the AJAX data of a product.
     pub async fn get_product_ajax(&self, product_id: &str) -> Result<ProductAjax> {
         let path = format!("/product/info/ajax?product_id={}", product_id);
-        let ajax_json_str = self.get(&path).await?;
+        let ajax_json_str = self.c.get(&path).await?;
 
         let mut json: HashMap<String, ProductAjax> = serde_json::from_str(&ajax_json_str)?;
         let product = json

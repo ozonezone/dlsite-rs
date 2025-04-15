@@ -1,6 +1,4 @@
-//! Product data got using "api" method.
-//!
-//! See [`crate::product`] for more information.
+//! Interfaces related to product. For more information, see [`ProductApiClient`].
 
 pub mod interface;
 #[cfg(test)]
@@ -10,10 +8,15 @@ use crate::{error::Result, DlsiteClient, DlsiteError};
 
 use self::interface::ProductApiContent;
 
-/// Get product data using "api" method.
+/// Client to retrieve DLsite product data using 'scraping' method
 ///
-/// For more information, see [`crate::product_api`].
-impl DlsiteClient {
+/// For difference about "scraping" and "api" method, see [`super::product::ProductClient`].
+#[derive(Clone, Debug)]
+pub struct ProductApiClient<'a> {
+    pub(crate) c: &'a DlsiteClient,
+}
+
+impl<'a> ProductApiClient<'a> {
     /// Get product detail using api.
     ///
     /// # Arguments
@@ -36,8 +39,9 @@ impl DlsiteClient {
     ///     assert_eq!(product.creators.unwrap().voice_by.unwrap()[0].name, "佐倉綾音");
     /// }
     /// ```
-    pub async fn get_product_api(&self, id: &str) -> Result<ProductApiContent> {
+    pub async fn get(&self, id: &str) -> Result<ProductApiContent> {
         let json = self
+            .c
             .get(&format!("/api/=/product.json?workno={}", id))
             .await?;
         let jd = &mut serde_json::Deserializer::from_str(&json);

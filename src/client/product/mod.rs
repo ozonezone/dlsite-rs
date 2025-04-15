@@ -1,16 +1,4 @@
-//! Product data got using "scraping" method.
-//!
-//! There are two way to get product data from DLsite.
-//! 1. "scraping" method: Using HTML scraping and "ajax" API. This is similar to how a browser gets data.
-//! 2. "api" method: Utilizes api used by DLsite app.
-//!
-//! Each method has its own pros and cons. By using first method, you can get more detailed data.
-//! But it is slower because it makes multiple requests and also fragile because it depends on HTML structure.
-//! By using second method, you can get data faster and more stable. But you can't get some
-//! additional data.
-//!
-//! This module provides functions to get product data using first method.
-//! For second method, see [`crate::product_api`].
+//! Interfaces related to product. For more information, see [`ProductClient`].
 
 use super::genre::Genre;
 use crate::{
@@ -26,6 +14,23 @@ pub mod html;
 pub mod review;
 #[cfg(test)]
 mod test;
+
+/// Client to retrieve DLsite product data using 'scraping' method.
+///
+/// # Scraping vs API
+///
+/// There are two way to get product data from DLsite.
+/// 1. "scraping" method: Using HTML scraping and "ajax" API. This is similar to how a browser gets data.
+/// 2. "api" method: Utilizes api used by DLsite app.
+///
+/// Each method has its own pros and cons. By using first method, you can get more detailed data.
+/// But it is slower because it makes multiple requests and also fragile because it depends on HTML structure.
+/// By using second method, you can get data faster and more stable. But you can't get some
+/// additional data.
+#[derive(Clone, Debug)]
+pub struct ProductClient<'a> {
+    pub(crate) c: &'a DlsiteClient,
+}
 
 /// A product on DLsite.
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
@@ -61,10 +66,7 @@ pub struct ProductPeople {
     pub voice_actor: Option<Vec<String>>,
 }
 
-/// Get product data using "scraping" method.
-///
-/// See [`crate::product`] for more information.
-impl DlsiteClient {
+impl<'a> ProductClient<'a> {
     /// Get information about a product (also called "work").
     /// This function will make 3 requests to DLsite.
     /// 1. Get the HTML page of the product. This data can be get using [`DlsiteClient::get_product_html`].
@@ -87,11 +89,11 @@ impl DlsiteClient {
     ///     println!("{:#?}", product);
     /// }
     /// ```
-    pub async fn get_product(&self, product_id: &str) -> Result<Product> {
+    pub async fn get_all(&self, product_id: &str) -> Result<Product> {
         let (html_data, ajax_data, review_data) = tokio::try_join!(
-            self.get_product_html(product_id),
+            self.get_html(product_id),
             self.get_product_ajax(product_id),
-            self.get_product_review(product_id, 6, 1, true, review::ReviewSortOrder::New)
+            self.get_review(product_id, 6, 1, true, review::ReviewSortOrder::New)
         )?;
 
         Ok(Product {
@@ -120,9 +122,9 @@ impl DlsiteClient {
 
     /// Scrapes the HTML page of a product and parses it into a [`html::ProductHtml`] struct.
     #[tracing::instrument(err)]
-    pub async fn get_product_html(&self, product_id: &str) -> Result<html::ProductHtml> {
+    pub async fn get_html(&self, product_id: &str) -> Result<html::ProductHtml> {
         let path = format!("/work/=/product_id/{}", product_id);
-        let html = self.get(&path).await?;
+        let html = self.c.get(&path).await?;
         let html = scraper::Html::parse_document(&html);
 
         html::parse_product_html(&html)
@@ -140,7 +142,7 @@ impl DlsiteClient {
     /// # Returns
     /// * `ProductReview` - Product reviews and related informations.
     #[tracing::instrument(err, skip_all)]
-    pub async fn get_product_review(
+    pub async fn get_review(
         &self,
         product_id: &str,
         limit: u32,
@@ -157,7 +159,7 @@ impl DlsiteClient {
             "/api/review?product_id={}&limit={}&mix_pickup={}&page={}&order={}&locale=ja_JP",
             product_id, limit, mix_pickup, page, order_str
         );
-        let json_str = self.get(&path).await?;
+        let json_str = self.c.get(&path).await?;
         let json: serde_json::Value = serde_json::from_str(&json_str)?;
 
         if !json["is_success"]
