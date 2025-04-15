@@ -125,6 +125,7 @@ pub enum SexCategory {
     Female,
 }
 
+/// Flag to represent sales status
 #[derive(Display)]
 #[strum(serialize_all = "snake_case")]
 pub enum AnaFlg {

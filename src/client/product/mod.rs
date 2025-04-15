@@ -1,12 +1,15 @@
 //! Interfaces related to product. For more information, see [`ProductClient`].
 
+use std::collections::HashMap;
+
 use super::genre::Genre;
 use crate::{
     client::common::{AgeCategory, WorkType},
     error::Result,
     utils::ToParseError as _,
-    DlsiteClient,
+    DlsiteClient, DlsiteError,
 };
+use ajax::ProductAjax;
 use chrono::NaiveDate;
 
 pub mod ajax;
@@ -20,13 +23,23 @@ mod test;
 /// # Scraping vs API
 ///
 /// There are two way to get product data from DLsite.
-/// 1. "scraping" method: Using HTML scraping and "ajax" API. This is similar to how a browser gets data.
-/// 2. "api" method: Utilizes api used by DLsite app.
+/// 1. the 'scraping' method (this client's method): This reproduces the behavior of browsing a DLSite site in a browser. That is, it retrieves the DLsite html file and scrapes it.
+/// 2. the 'api' method (in [`super::product_api::ProductApiClient`]): this uses directly the API that DLsite provides for their app.
+///    This is a json api, so it is easy to parse, but has the problem that some data can only be obtained by the scrapping method,
+///    and if DLsite changes their api, it will be unusable until this library follows suit.
 ///
-/// Each method has its own pros and cons. By using first method, you can get more detailed data.
-/// But it is slower because it makes multiple requests and also fragile because it depends on HTML structure.
-/// By using second method, you can get data faster and more stable. But you can't get some
-/// additional data.
+/// ## Details about scraping method
+/// Actually, the 'scraping' method does more than just scraping html:
+/// when browsing the DLsite, some information, such as product details and review information,
+/// is retrieved from a separate ajax api.
+///
+/// Scraping is specifically performed by the following process
+/// 1. parsing HTML to obtain basic product information
+/// 2. retrieve detailed product information and related products via an API
+///    (this is completely different from the api used in the api method, and is referred to as the 'ajax api' in this crate.)
+/// 3. retrieve review information by another api (called 'review api')
+///
+/// So this client has a `get_all` method to do all 1-3 and get the complete information, and each method to do only each.
 #[derive(Clone, Debug)]
 pub struct ProductClient<'a> {
     pub(crate) c: &'a DlsiteClient,
@@ -67,13 +80,7 @@ pub struct ProductPeople {
 }
 
 impl<'a> ProductClient<'a> {
-    /// Get information about a product (also called "work").
-    /// This function will make 3 requests to DLsite.
-    /// 1. Get the HTML page of the product. This data can be get using [`DlsiteClient::get_product_html`].
-    /// 2. Get the AJAX data of the product. This data can be get using [`DlsiteClient::get_product_ajax`].
-    /// 3. Get the review data of the product. This data can be get using [`DlsiteClient::get_product_review`].
-    ///
-    /// Especially, review data can be used as independent information.
+    /// Get full information about a product. For more detail, see documentation of [`ProductClient`].
     ///
     /// # Arguments
     /// * `product_id` - The product ID to get information about. Example: `RJ123456`. NOTE: This must be capitalized.
@@ -91,7 +98,7 @@ impl<'a> ProductClient<'a> {
     pub async fn get_all(&self, product_id: &str) -> Result<Product> {
         let (html_data, ajax_data, review_data) = tokio::try_join!(
             self.get_html(product_id),
-            self.get_product_ajax(product_id),
+            self.get_ajax(product_id),
             self.get_review(product_id, 6, 1, true, review::ReviewSortOrder::New)
         )?;
 
@@ -119,7 +126,7 @@ impl<'a> ProductClient<'a> {
         })
     }
 
-    /// Scrapes the HTML page of a product and parses it into a [`html::ProductHtml`] struct.
+    /// Scrapes the HTML page of a product and parses it.
     #[tracing::instrument(err)]
     pub async fn get_html(&self, product_id: &str) -> Result<html::ProductHtml> {
         let path = format!("/work/=/product_id/{}", product_id);
@@ -129,17 +136,46 @@ impl<'a> ProductClient<'a> {
         html::parse_product_html(&html)
     }
 
-    /// Get product reviews and related informations using ajax api.
+    /// Fetch detailed product information using 'ajax api'.
+    pub async fn get_ajax(&self, product_id: &str) -> Result<ProductAjax> {
+        let path = format!("/product/info/ajax?product_id={}", product_id);
+        let ajax_json_str = self.c.get(&path).await?;
+
+        let mut json: HashMap<String, ProductAjax> = serde_json::from_str(&ajax_json_str)?;
+        let product = json
+            .remove(product_id)
+            .ok_or_else(|| DlsiteError::Parse("Failed to parse ajax json".to_string()))?;
+
+        Ok(product)
+    }
+
+    /// Fetch detailed multiple products information using 'ajax api'.
+    ///
+    /// It is more efficient to use this method than calling `get_ajax` multiple times.
+    #[tracing::instrument(err)]
+    pub async fn get_ajax_multiple(
+        &self,
+        product_ids: Vec<&str>,
+    ) -> Result<HashMap<String, ProductAjax>> {
+        let path = format!("/product/info/ajax?product_id={}", product_ids.join(","));
+        let ajax_json_str = self.c.get(&path).await?;
+
+        let json: HashMap<String, ProductAjax> = serde_json::from_str(&ajax_json_str)?;
+
+        Ok(json)
+    }
+
+    /// Get product reviews and related informations using 'review api'.
     ///
     /// # Arguments
     /// * `product_id` - Product ID.
-    /// * `mix_pickup` - Mixes picked up review. To get user genre, this must be true.
-    /// * `order` - Sort order of reviews.
     /// * `limit` - Number of reviews to get.
     /// * `page` - Page number.
+    /// * `mix_pickup` - Mixes picked up review. To get user genre, this must be true.
+    /// * `order` - Sort order of reviews.
     ///
     /// # Returns
-    /// * `ProductReview` - Product reviews and related informations.
+    /// Product reviews and related informations.
     #[tracing::instrument(err, skip_all)]
     pub async fn get_review(
         &self,

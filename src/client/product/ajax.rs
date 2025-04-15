@@ -227,31 +227,3 @@ where
 
     WorkType::from_str(&s).map_err(serde::de::Error::custom)
 }
-
-impl<'a> ProductClient<'a> {
-    /// Get the AJAX data of multiple products.
-    #[tracing::instrument(err)]
-    pub async fn get_products_ajax(
-        &self,
-        product_ids: Vec<&str>,
-    ) -> Result<HashMap<String, ProductAjax>> {
-        let path = format!("/product/info/ajax?product_id={}", product_ids.join(","));
-        let ajax_json_str = self.c.get(&path).await?;
-
-        let json: HashMap<String, ProductAjax> = serde_json::from_str(&ajax_json_str)?;
-
-        Ok(json)
-    }
-    /// Get the AJAX data of a product.
-    pub async fn get_product_ajax(&self, product_id: &str) -> Result<ProductAjax> {
-        let path = format!("/product/info/ajax?product_id={}", product_id);
-        let ajax_json_str = self.c.get(&path).await?;
-
-        let mut json: HashMap<String, ProductAjax> = serde_json::from_str(&ajax_json_str)?;
-        let product = json
-            .remove(product_id)
-            .ok_or_else(|| DlsiteError::Parse("Failed to parse ajax json".to_string()))?;
-
-        Ok(product)
-    }
-}
