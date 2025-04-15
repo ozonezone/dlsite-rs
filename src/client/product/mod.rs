@@ -14,8 +14,8 @@
 
 use super::genre::Genre;
 use crate::{
+    client::common::{AgeCategory, WorkType},
     error::Result,
-    interface::{AgeCategory, WorkType},
     utils::ToParseError as _,
     DlsiteClient,
 };

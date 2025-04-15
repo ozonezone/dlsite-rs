@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_with::{formats::PreferOne, serde_as, DefaultOnError, OneOrMany};
 
-use crate::interface::{AgeCategory, FileType, WorkCategory, WorkType};
+use crate::client::common::{AgeCategory, FileType, WorkCategory, WorkType};
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(untagged)]

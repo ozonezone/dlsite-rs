@@ -8,7 +8,6 @@
 
 pub mod client;
 pub mod error;
-pub mod interface;
 mod utils;
 
 pub use client::DlsiteClient;

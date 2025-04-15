@@ -7,8 +7,8 @@ use scraper::{Html, Selector};
 use serde::Deserialize;
 
 use crate::{
+    client::common::{AgeCategory, WorkType},
     error::Result,
-    interface::{AgeCategory, WorkType},
     utils::ToParseError,
     DlsiteClient,
 };
@@ -40,7 +40,7 @@ pub struct SearchProductItem {
     pub price_original: i32,
     pub price_sale: Option<i32>,
     pub age_category: AgeCategory,
-    pub work_type: crate::interface::WorkType,
+    pub work_type: crate::client::common::WorkType,
     pub thumbnail_url: String,
     pub rating: Option<f32>, // pub image_url: Option<String>,
 }
@@ -291,7 +291,7 @@ pub(crate) fn parse_search_html(html: &str) -> Result<Vec<SearchProductItem>> {
                     }
                     None
                 })
-                .unwrap_or(crate::interface::WorkType::Unknown("".to_string())),
+                .unwrap_or(crate::client::common::WorkType::Unknown("".to_string())),
             thumbnail_url: {
                 let img_e = item_element
                     .select(&Selector::parse(".work_thumb_inner > img").unwrap())
@@ -353,7 +353,7 @@ pub(crate) fn parse_search_html(html: &str) -> Result<Vec<SearchProductItem>> {
 
 #[cfg(test)]
 mod tests {
-    use crate::client::{search::options::*, DlsiteClient};
+    use crate::client::{common::WorkType, search::options::*, DlsiteClient};
 
     #[tokio::test]
     async fn search_product_1() {
@@ -385,7 +385,7 @@ mod tests {
                 assert!(r.rating.is_some());
                 assert_eq!("RG62982", r.circle_id);
                 assert_eq!("Yostar", r.circle_name);
-                assert_eq!(crate::interface::WorkType::SOU, r.work_type);
+                assert_eq!(WorkType::SOU, r.work_type);
                 assert_eq!("春花らん", r.creator.as_ref().unwrap());
                 assert!(!r.creator_omitted.unwrap());
             }

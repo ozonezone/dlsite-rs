@@ -3,8 +3,8 @@ use chrono::NaiveDate;
 use test_case::test_case;
 
 use crate::{
+    client::common::{AgeCategory, WorkType},
     client::genre::Genre,
-    interface::{AgeCategory, WorkType},
     DlsiteClient,
 };
 

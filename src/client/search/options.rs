@@ -3,8 +3,8 @@
 use strum::Display;
 
 use crate::{
+    client::common::{FileType, WorkCategory, WorkType},
     client::search::macros::*,
-    interface::{FileType, WorkCategory, WorkType},
 };
 
 // Struct that can be converted dlsite url (below is example). All params are optional.
@@ -52,7 +52,7 @@ pub struct ProductSearchOptions {
     pub price_high: Option<u32>,
     /// Sales status
     pub ana_flg: Option<AnaFlg>,
-    pub age_category: Option<Vec<crate::interface::AgeCategory>>,
+    pub age_category: Option<Vec<crate::client::common::AgeCategory>>,
     pub work_category: Option<Vec<WorkCategory>>,
     pub order: Option<Order>,
     pub work_type: Option<Vec<WorkType>>,

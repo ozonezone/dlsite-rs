@@ -3,7 +3,7 @@ use rand::Rng;
 
 use super::interface::Genre;
 use crate::{
-    interface::{AgeCategory, WorkType},
+    client::common::{AgeCategory, WorkType},
     DlsiteClient,
 };
 use test_case::test_case;
