@@ -76,13 +76,14 @@ impl<'a> SearchClient<'a> {
     ///
     /// # Example
     /// ```
-    /// use dlsite::{DlsiteClient, product::Product, search::options::*};
+    /// use dlsite::{DlsiteClient, client::search::options::*};
     /// use tokio;
     /// #[tokio::main]
     /// async fn main() {
     ///     let client = DlsiteClient::default();
     ///     let product = client
-    ///         .search_product(&ProductSearchOptions {
+    ///         .search()
+    ///         .search_product(&SearchProductQuery {
     ///             sex_category: Some(vec![SexCategory::Male]),
     ///             keyword: Some("ASMR".to_string()),
     ///             ..Default::default()
@@ -165,13 +166,13 @@ pub(crate) fn parse_search_html(html: &str) -> Result<Vec<SearchProductItem>> {
                             "全年齢" => AgeCategory::General,
                             "R-15" => AgeCategory::R15,
                             _ => {
-                                return Err(crate::DlsiteError::ParseError(
+                                return Err(crate::DlsiteError::Parse(
                                     "Age category parse error: invalid title".to_string(),
                                 ))
                             }
                         }
                     } else {
-                        return Err(crate::DlsiteError::ParseError(
+                        return Err(crate::DlsiteError::Parse(
                             "Age category parse error".to_string(),
                         ));
                     }
@@ -309,7 +310,7 @@ pub(crate) fn parse_search_html(html: &str) -> Result<Vec<SearchProductItem>> {
                     (Some(src), _) => format!("https:{}", src),
                     (_, Some(data_src)) => format!("https:{}", data_src),
                     (_, _) => {
-                        return Err(crate::DlsiteError::ParseError(
+                        return Err(crate::DlsiteError::Parse(
                             "Failed to find thumbnail".to_string(),
                         ))
                     }

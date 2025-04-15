@@ -1,15 +1,16 @@
 use thiserror::Error;
 
+/// Errors that can occur while using the Dlsite API
 #[derive(Debug, Error)]
 pub enum DlsiteError {
     #[error(transparent)]
-    ReqwestError(#[from] reqwest::Error),
+    Reqwest(#[from] reqwest::Error),
     #[error(transparent)]
-    SerdeJsonError(#[from] serde_json::Error),
+    SerdeJson(#[from] serde_json::Error),
     #[error("{0}")]
-    ParseError(String),
+    Parse(String),
     #[error("{0}")]
-    ServerError(String),
+    Server(String),
 }
 
 pub(crate) type Result<T> = std::result::Result<T, DlsiteError>;

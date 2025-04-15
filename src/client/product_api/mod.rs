@@ -30,12 +30,12 @@ impl<'a> ProductApiClient<'a> {
     ///
     /// # Example
     /// ```
-    /// use dlsite::{DlsiteClient, product::Product};
+    /// use dlsite::DlsiteClient;
     /// use tokio;
     /// #[tokio::main]
     /// async fn main() {
     ///     let client = DlsiteClient::default();
-    ///     let product = client.get_product_api("RJ01014447").await.unwrap();
+    ///     let product = client.product_api().get("RJ01014447").await.unwrap();
     ///     assert_eq!(product.creators.unwrap().voice_by.unwrap()[0].name, "佐倉綾音");
     /// }
     /// ```
@@ -58,15 +58,12 @@ impl<'a> ProductApiClient<'a> {
         match result {
             Ok(result) => {
                 let Some(json) = result.into_iter().next() else {
-                    return Err(DlsiteError::ParseError("No product found".to_string()));
+                    return Err(DlsiteError::Parse("No product found".to_string()));
                 };
 
                 Ok(json)
             }
-            Err(e) => Err(DlsiteError::ParseError(format!(
-                "Failed to parse json: {}",
-                e
-            ))),
+            Err(e) => Err(DlsiteError::Parse(format!("Failed to parse json: {}", e))),
         }
     }
 }

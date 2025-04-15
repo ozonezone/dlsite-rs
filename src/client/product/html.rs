@@ -175,7 +175,7 @@ pub(super) fn parse_product_html(html: &Html) -> Result<ProductHtml> {
             "R18" => AgeCategory::Adult,
             "R-15" => AgeCategory::R15,
             _ => {
-                return Err(DlsiteError::ParseError(format!(
+                return Err(DlsiteError::Parse(format!(
                     "failed to convert {age_rating} to enum"
                 )))
             }
@@ -198,7 +198,7 @@ pub(super) fn parse_product_html(html: &Html) -> Result<ProductHtml> {
         .to_parse_error("Failed to parse released_at")?
         .as_str();
     let released_at = NaiveDate::parse_from_str(released_at, "%Y年%m月%d日")
-        .map_err(|_| DlsiteError::ParseError("Failed to parse released_at".to_string()))?;
+        .map_err(|_| DlsiteError::Parse("Failed to parse released_at".to_string()))?;
     let genre = work_outline_table
         .remove("ジャンル")
         .map(|element| {
@@ -223,7 +223,7 @@ pub(super) fn parse_product_html(html: &Html) -> Result<ProductHtml> {
         })
         .unwrap_or_default();
     if !work_outline_table.is_empty() {
-        return Err(DlsiteError::ParseError(format!(
+        return Err(DlsiteError::Parse(format!(
             "failed to parse tags {:?}",
             work_outline_table.len()
         )));

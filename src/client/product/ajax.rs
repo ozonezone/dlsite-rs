@@ -250,7 +250,7 @@ impl<'a> ProductClient<'a> {
         let mut json: HashMap<String, ProductAjax> = serde_json::from_str(&ajax_json_str)?;
         let product = json
             .remove(product_id)
-            .ok_or_else(|| DlsiteError::ParseError("Failed to parse ajax json".to_string()))?;
+            .ok_or_else(|| DlsiteError::Parse("Failed to parse ajax json".to_string()))?;
 
         Ok(product)
     }

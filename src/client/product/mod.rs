@@ -80,12 +80,11 @@ impl<'a> ProductClient<'a> {
     ///
     /// # Example
     /// ```
-    /// use dlsite::{DlsiteClient, product::Product};
-    /// use tokio;
+    /// use dlsite::DlsiteClient;
     /// #[tokio::main]
     /// async fn main() {
     ///     let client = DlsiteClient::default();
-    ///     let product = client.get_product("RJ123456").await.unwrap();
+    ///     let product = client.product().get_all("RJ123456").await.unwrap();
     ///     println!("{:#?}", product);
     /// }
     /// ```
@@ -169,7 +168,7 @@ impl<'a> ProductClient<'a> {
             let message = json["error_msg"]
                 .as_str()
                 .unwrap_or("Failed to get error message");
-            return Err(crate::DlsiteError::ServerError(format!(
+            return Err(crate::DlsiteError::Server(format!(
                 "Failed to get review: {}",
                 message
             )));
