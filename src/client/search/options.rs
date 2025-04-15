@@ -40,8 +40,9 @@ use crate::{
 // /show_type/1
 // /from/fs.detail
 
+/// Struct to represent the search options for dlsite product search
 #[derive(Default)]
-pub struct ProductSearchOptions {
+pub struct SearchProductQuery {
     /// Display lang
     pub language: Language,
     pub keyword_creator: Option<String>,
@@ -74,8 +75,9 @@ pub struct ProductSearchOptions {
     pub release_term: Option<ReleaseTerm>,
 }
 
-impl ProductSearchOptions {
-    pub(super) fn to_path(&self) -> String {
+impl SearchProductQuery {
+    /// Convert the struct to a path, which can be used to make a request to the dlsite.
+    pub fn to_path(&self) -> String {
         let mut path = "/fsr/ajax/=".to_string();
 
         push!(path, self, language);
@@ -192,14 +194,14 @@ mod tests {
     fn product_search_param_default() {
         assert_eq!(
             "/fsr/ajax/=/language/jp",
-            super::ProductSearchOptions::default().to_path()
+            super::SearchProductQuery::default().to_path()
         );
     }
     #[test]
     fn product_search_param_1() {
         assert_eq!(
             "/fsr/ajax/=/language/jp/sex_category[0]/male/price_low/801/file_type[0]/PNG/file_type[1]/EXE/soon/1",
-            super::ProductSearchOptions {
+            super::SearchProductQuery {
                 sex_category: Some(vec![SexCategory::Male]),
                 price_low: Some(801),
                 file_type: Some(vec![FileType::PNG, FileType::EXE]),

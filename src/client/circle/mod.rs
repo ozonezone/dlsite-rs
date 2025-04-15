@@ -10,7 +10,7 @@ use super::{
 };
 use crate::{error::Result, utils::ToParseError as _};
 
-use self::options::CircleQueryOptions;
+use self::options::CircleQuery;
 
 /// Client to get circle-related content from DLsite.
 #[derive(Clone, Debug)]
@@ -20,11 +20,7 @@ pub struct CircleClient<'a> {
 
 impl<'a> CircleClient<'a> {
     /// Search circle-related products.
-    pub async fn get_circle(
-        &self,
-        circle_id: &str,
-        options: &CircleQueryOptions,
-    ) -> Result<SearchResult> {
+    pub async fn get_circle(&self, circle_id: &str, options: &CircleQuery) -> Result<SearchResult> {
         let query_path = options.to_path(circle_id);
         let html = self.c.get(&query_path).await?;
         let html = Html::parse_fragment(&html);
@@ -64,7 +60,7 @@ mod tests {
             .circle()
             .get_circle(
                 "RG24350",
-                &super::CircleQueryOptions {
+                &super::CircleQuery {
                     ..Default::default()
                 },
             )
@@ -81,7 +77,7 @@ mod tests {
             .circle()
             .get_circle(
                 "RG24350",
-                &super::CircleQueryOptions {
+                &super::CircleQuery {
                     page: Some(2),
                     ..Default::default()
                 },

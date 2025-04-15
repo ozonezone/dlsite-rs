@@ -13,7 +13,7 @@ use crate::{
     DlsiteClient,
 };
 
-use self::options::ProductSearchOptions;
+use self::options::SearchProductQuery;
 
 /// Client to search products on DLsite.
 pub struct SearchClient<'a> {
@@ -92,7 +92,7 @@ impl<'a> SearchClient<'a> {
     ///     dbg!(&product);
     /// }
     /// ```
-    pub async fn search_product(&self, options: &ProductSearchOptions) -> Result<SearchResult> {
+    pub async fn search_product(&self, options: &SearchProductQuery) -> Result<SearchResult> {
         let query_path = options.to_path();
         let json = self.c.get(&query_path).await?;
         let json = serde_json::from_str::<SearchAjaxResult>(&json)?;
@@ -365,7 +365,7 @@ mod tests {
         let client = DlsiteClient::default();
         let res = client
             .search()
-            .search_product(&super::ProductSearchOptions {
+            .search_product(&super::SearchProductQuery {
                 sex_category: Some(vec![SexCategory::Male]),
                 keyword: Some("ユウカASMR".to_string()),
                 ..Default::default()
@@ -401,7 +401,7 @@ mod tests {
     #[tokio::test]
     async fn search_product_2() {
         let client = DlsiteClient::default();
-        let mut opts = super::ProductSearchOptions {
+        let mut opts = super::SearchProductQuery {
             sex_category: Some(vec![SexCategory::Male]),
             order: Some(Order::Trend),
             per_page: Some(50),
