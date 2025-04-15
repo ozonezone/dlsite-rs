@@ -31,7 +31,7 @@ impl<'a> ProductApiClient<'a> {
     /// # Example
     /// ```
     /// use dlsite::DlsiteClient;
-    /// use tokio;
+    ///
     /// #[tokio::main]
     /// async fn main() {
     ///     let client = DlsiteClient::default();

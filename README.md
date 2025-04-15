@@ -32,34 +32,34 @@ AJAX API.
 
 - Get product by api
 
-```rust
-use dlsite::DlsiteClient;
+  ```rust
+  use dlsite::DlsiteClient;
 
-#[tokio::main]
-async fn main() {
-    let client = DlsiteClient::default();
-    let product = client.product_api().get("RJ01014447").await.unwrap();
-    assert_eq!(product.creators.unwrap().voice_by.unwrap()[0].name, "佐倉綾音");
-}
-```
+  #[tokio::main]
+  async fn main() {
+      let client = DlsiteClient::default();
+      let product = client.product_api().get("RJ01014447").await.unwrap();
+      assert_eq!(product.creators.unwrap().voice_by.unwrap()[0].name, "佐倉綾音");
+  }
+  ```
 
 - Search products
 
-```rust
-use dlsite::{DlsiteClient, client::search::options::*};
+  ```rust
+  use dlsite::{DlsiteClient, client::search::options::*};
 
-#[tokio::main]
-async fn main() {
-    let client = DlsiteClient::default();
-    let product = client
-        .search()
-        .search_product(&SearchProductQuery {
-            sex_category: Some(vec![SexCategory::Male]),
-            keyword: Some("ASMR".to_string()),
-            ..Default::default()
-        })
-        .await
-        .expect("Failed to search");
-    dbg!(&product);
-}
-```
+  #[tokio::main]
+  async fn main() {
+      let client = DlsiteClient::default();
+      let product = client
+          .search()
+          .search_product(&SearchProductQuery {
+              sex_category: Some(vec![SexCategory::Male]),
+              keyword: Some("ASMR".to_string()),
+              ..Default::default()
+          })
+          .await
+          .expect("Failed to search");
+      dbg!(&product);
+  }
+  ```

@@ -77,7 +77,7 @@ impl<'a> SearchClient<'a> {
     /// # Example
     /// ```
     /// use dlsite::{DlsiteClient, client::search::options::*};
-    /// use tokio;
+    ///
     /// #[tokio::main]
     /// async fn main() {
     ///     let client = DlsiteClient::default();
