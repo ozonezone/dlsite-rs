@@ -4,9 +4,7 @@ use chrono::NaiveDate;
 use scraper::{ElementRef, Html, Selector};
 use url::Url;
 
-use crate::{
-    genre::Genre, interface::AgeCategory, utils::ToParseError, DlsiteClient, DlsiteError, Result,
-};
+use crate::{genre::Genre, interface::AgeCategory, utils::ToParseError, DlsiteError, Result};
 
 use super::ProductPeople;
 
@@ -53,7 +51,7 @@ pub(super) fn parse_product_html(html: &Html) -> Result<ProductHtml> {
         .attr("href")
         .to_parse_error("No circle id found")?
         .split('/')
-        .last()
+        .next_back()
         .to_parse_error("Failed to parse circle id")?
         .split('.')
         .next()

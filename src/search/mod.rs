@@ -179,7 +179,7 @@ pub(crate) fn parse_search_html(html: &str) -> Result<Vec<SearchProductItem>> {
                 .attr("href")
                 .to_parse_error("Failed to get maker link")?
                 .split('/')
-                .last()
+                .next_back()
                 .to_parse_error("Invalid url")?
                 .split('.')
                 .next()

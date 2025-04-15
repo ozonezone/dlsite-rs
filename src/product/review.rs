@@ -3,9 +3,6 @@ use std::collections::HashMap;
 use serde::{Deserialize, Deserializer};
 
 use crate::genre::Genre;
-use crate::utils::ToParseError;
-use crate::DlsiteClient;
-use crate::Result;
 
 pub enum ReviewSortOrder {
     New,

@@ -77,10 +77,10 @@ async fn get_product_api_env() {
 // #[test_case("VJ"; "vj")]
 #[tokio::test]
 async fn get_product_api_rand(product_type: &str) {
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
     let mut i = 0;
     loop {
-        let id = rng.gen_range(100000..1000000);
+        let id = rng.random_range(100000..1000000);
         let id = if id >= 1000000 {
             format!("{}0{}", product_type, id)
         } else {
