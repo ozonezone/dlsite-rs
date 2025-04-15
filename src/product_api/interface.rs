@@ -159,6 +159,7 @@ pub struct ProductApiContent {
     pub price_eur: f64,
     pub production_workno: Option<String>,
     pub publisher_workno: Option<String>,
+    pub rating: Value,
     pub regist_date: Option<String>,
     pub regular_price: Option<i64>,
     pub scenario_by: Option<String>,
