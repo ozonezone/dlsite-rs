@@ -4,14 +4,21 @@ This is a library to get information about products on DLsite. Some information
 is not available on the HTML page, so this library also makes requests to the
 AJAX API.
 
-NOTE: This library is still wip, and the API may change. Also, only the parts I
-needed are implemented, so there are many unimplemented parts.
+## NOTE
 
-## Features
+- This library is still wip, and the API may change.
+- Only the parts I needed are implemented, so there are many unimplemented
+  parts. PR is welcome.
+- Especially in the JSON API, the DLsite side may change the specification.
+  Expect breaking changes due to such changes.
+
+## Implemented features
 
 - [ ] Get product information by scraping html and using ajax api for web.
   - [x] Basic information
   - [ ] Additional information
+  - [ ] Multi-language support (Currently, this crate uses Japanese page to
+        parse html)
 - [x] Get product review
 - [x] Get product information using api.
 - [x] Search product

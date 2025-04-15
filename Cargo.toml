@@ -25,6 +25,7 @@ strum = { version = "0.27.1", features = ["derive"] }
 url = "2.3.1"
 regex = "1.11.1"
 tracing = "0.1"
+document-features = { version = "0.2.11", optional = true }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["full"] }
@@ -35,10 +36,17 @@ test-case = "3.1.0"
 
 [features]
 default = ["unknown-field-log"]
-# Outputs log when unknown fields are found in response.
+
+## Outputs log when unknown fields are found in response.
 unknown-field-log = ["dep:serde_ignored"]
-# Fails when unknown fields are found in response.
+## Fails when unknown fields are found in response.
 unknown-field-error = []
 
+## Enables native-tls feature of reqwest.
 native-tls = ["reqwest/native-tls"]
+## Enables rustls-tls feature of reqwest.
 rustls-tls = ["reqwest/rustls-tls"]
+document-features = ["dep:document-features"]
+
+[package.metadata.docs.rs]
+features = ["document-features"]
