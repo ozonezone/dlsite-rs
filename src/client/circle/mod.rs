@@ -4,11 +4,11 @@ pub mod options;
 
 use scraper::{Html, Selector};
 
-use crate::{
+use super::{
     search::{parse_search_html, SearchResult},
-    utils::ToParseError,
-    DlsiteClient, Result,
+    DlsiteClient,
 };
+use crate::{error::Result, utils::ToParseError as _};
 
 use self::options::CircleQueryOptions;
 

@@ -1,4 +1,4 @@
-use crate::search::{macros::*, options::Order};
+use super::super::search::{macros::*, options::Order};
 
 #[derive(Default)]
 pub struct CircleQueryOptions {
@@ -30,7 +30,7 @@ impl CircleQueryOptions {
 }
 #[cfg(test)]
 mod tests {
-    use crate::search::options::Order;
+    use crate::client::search::options::Order;
 
     #[test]
     fn circle_param() {

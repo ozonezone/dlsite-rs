@@ -1,4 +1,4 @@
-use crate::{DlsiteError, Result};
+use crate::error::{DlsiteError, Result};
 
 pub(crate) trait ToParseError<T> {
     fn to_parse_error(self, msg: &str) -> Result<T>;

@@ -7,9 +7,10 @@ use scraper::{Html, Selector};
 use serde::Deserialize;
 
 use crate::{
+    error::Result,
     interface::{AgeCategory, WorkType},
     utils::ToParseError,
-    DlsiteClient, Result,
+    DlsiteClient,
 };
 
 use self::options::ProductSearchOptions;
@@ -352,7 +353,7 @@ pub(crate) fn parse_search_html(html: &str) -> Result<Vec<SearchProductItem>> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{search::options::*, DlsiteClient};
+    use crate::client::{search::options::*, DlsiteClient};
 
     #[tokio::test]
     async fn search_product_1() {

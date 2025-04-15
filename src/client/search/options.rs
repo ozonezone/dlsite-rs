@@ -3,8 +3,8 @@
 use strum::Display;
 
 use crate::{
+    client::search::macros::*,
     interface::{FileType, WorkCategory, WorkType},
-    search::macros::*,
 };
 
 // Struct that can be converted dlsite url (below is example). All params are optional.
@@ -186,7 +186,7 @@ pub enum ReleaseTerm {
 
 #[cfg(test)]
 mod tests {
-    use crate::search::options::*;
+    use crate::client::search::options::*;
 
     #[test]
     fn product_search_param_default() {

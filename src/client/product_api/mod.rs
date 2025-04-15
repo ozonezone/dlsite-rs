@@ -6,7 +6,7 @@ pub mod interface;
 #[cfg(test)]
 mod test;
 
-use crate::{DlsiteClient, DlsiteError, Result};
+use crate::{error::Result, DlsiteClient, DlsiteError};
 
 use self::interface::ProductApiContent;
 

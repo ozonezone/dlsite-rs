@@ -4,7 +4,9 @@ use chrono::NaiveDate;
 use scraper::{ElementRef, Html, Selector};
 use url::Url;
 
-use crate::{genre::Genre, interface::AgeCategory, utils::ToParseError, DlsiteError, Result};
+use crate::{
+    client::genre::Genre, error::Result, interface::AgeCategory, utils::ToParseError, DlsiteError,
+};
 
 use super::ProductPeople;
 

@@ -12,11 +12,12 @@
 //! This module provides functions to get product data using first method.
 //! For second method, see [`crate::product_api`].
 
+use super::genre::Genre;
 use crate::{
-    genre::Genre,
+    error::Result,
     interface::{AgeCategory, WorkType},
     utils::ToParseError as _,
-    DlsiteClient, Result,
+    DlsiteClient,
 };
 use chrono::NaiveDate;
 
