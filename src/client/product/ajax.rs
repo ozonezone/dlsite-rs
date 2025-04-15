@@ -3,9 +3,7 @@ use std::{collections::HashMap, str::FromStr};
 use serde::{Deserialize, Deserializer};
 use serde_json::Value;
 
-use crate::{client::common::WorkType, error::Result, DlsiteError};
-
-use super::ProductClient;
+use crate::client::common::WorkType;
 
 #[derive(Debug, Clone, Deserialize)]
 #[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]

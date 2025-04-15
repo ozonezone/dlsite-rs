@@ -1,4 +1,4 @@
-//! Interfaces related to product. For more information, see [`ProductApiClient`].
+//! Interfaces related to product api. For more information, see [`ProductApiClient`].
 
 pub mod interface;
 #[cfg(test)]
