@@ -58,7 +58,7 @@ async fn get_product_api_2() {
 
 #[test_case("RJ01084246"; "otome")]
 #[test_case("VJ01000513"; "soft")]
-#[test_case("RJ222179"; "normal")]
+#[test_case("RJ01360841"; "normal")]
 #[tokio::test]
 async fn get_product_api_success(id: &str) {
     let client = DlsiteClient::default();
