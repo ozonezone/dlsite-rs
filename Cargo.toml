@@ -37,12 +37,12 @@ test-case = "3.1.0"
 [features]
 default = ["unknown-field-log", "reqwest-default-tls"]
 
-### Outputs log when unknown fields are found in response.
+## Outputs log when unknown fields are found in response.
 unknown-field-log = ["dep:serde_ignored"]
 ## Fails when unknown fields are found in response.
 unknown-field-error = []
 
-#! ## Reqwest features
+#! ### Reqwest features
 ## Enables native-tls feature of reqwest.
 reqwest-default-tls = ["reqwest/default-tls"]
 ## Enables native-tls feature of reqwest.

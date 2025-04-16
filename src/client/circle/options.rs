@@ -1,7 +1,7 @@
-use crate::search::{macros::*, options::Order};
+use super::super::search::{macros::*, options::Order};
 
 #[derive(Default)]
-pub struct CircleQueryOptions {
+pub struct CircleQuery {
     /// Display lang
     pub order: Option<Order>,
     pub options: Option<Vec<String>>,
@@ -10,7 +10,7 @@ pub struct CircleQueryOptions {
     pub page: Option<u32>,
 }
 
-impl CircleQueryOptions {
+impl CircleQuery {
     pub(super) fn to_path(&self, circle_id: &str) -> String {
         let mut path = "/circle/profile/=".to_string();
 
@@ -30,20 +30,20 @@ impl CircleQueryOptions {
 }
 #[cfg(test)]
 mod tests {
-    use crate::search::options::Order;
+    use crate::client::search::options::Order;
 
     #[test]
     fn circle_param() {
         assert_eq!(
             "/circle/profile/=/show_type/3/hd/1/without_order/1/maker_id/RG24350.html",
-            super::CircleQueryOptions::default().to_path("RG24350")
+            super::CircleQuery::default().to_path("RG24350")
         );
     }
     #[test]
     fn circle_param_1() {
         assert_eq!(
             "/circle/profile/=/show_type/3/hd/1/without_order/1/page/2/maker_id/RG24350.html",
-            super::CircleQueryOptions {
+            super::CircleQuery {
                 page: Some(2),
                 ..Default::default()
             }
@@ -54,7 +54,7 @@ mod tests {
     fn circle_param_2() {
         assert_eq!(
             "/circle/profile/=/show_type/3/hd/1/without_order/1/page/2/maker_id/RG24350.html/order/price",
-            super::CircleQueryOptions {
+            super::CircleQuery {
                 page: Some(2),
                 order: Some(Order::Price),
                 ..Default::default()

@@ -1,4 +1,4 @@
-//! Search api related interfaces
+//! Interfaces related to search feature. For more information, see [`SearchClient`].
 
 pub(crate) mod macros;
 pub mod options;
@@ -7,12 +7,18 @@ use scraper::{Html, Selector};
 use serde::Deserialize;
 
 use crate::{
-    interface::{AgeCategory, WorkType},
+    client::common::{AgeCategory, WorkType},
+    error::Result,
     utils::ToParseError,
-    DlsiteClient, Result,
+    DlsiteClient,
 };
 
-use self::options::ProductSearchOptions;
+use self::options::SearchProductQuery;
+
+/// Client to search products on DLsite.
+pub struct SearchClient<'a> {
+    pub(crate) c: &'a DlsiteClient,
+}
 
 #[derive(Deserialize)]
 struct SearchPageInfo {
@@ -39,7 +45,7 @@ pub struct SearchProductItem {
     pub price_original: i32,
     pub price_sale: Option<i32>,
     pub age_category: AgeCategory,
-    pub work_type: crate::interface::WorkType,
+    pub work_type: crate::client::common::WorkType,
     pub thumbnail_url: String,
     pub rating: Option<f32>, // pub image_url: Option<String>,
 }
@@ -62,7 +68,7 @@ fn parse_num_str(str: &str) -> Result<i32> {
         .to_parse_error("Failed to parse string to number")
 }
 
-impl DlsiteClient {
+impl<'a> SearchClient<'a> {
     /// Search products on DLsite.
     ///
     /// # Arguments
@@ -70,13 +76,14 @@ impl DlsiteClient {
     ///
     /// # Example
     /// ```
-    /// use dlsite::{DlsiteClient, product::Product, search::options::*};
-    /// use tokio;
+    /// use dlsite::{DlsiteClient, client::search::options::*};
+    ///
     /// #[tokio::main]
     /// async fn main() {
     ///     let client = DlsiteClient::default();
     ///     let product = client
-    ///         .search_product(&ProductSearchOptions {
+    ///         .search()
+    ///         .search_product(&SearchProductQuery {
     ///             sex_category: Some(vec![SexCategory::Male]),
     ///             keyword: Some("ASMR".to_string()),
     ///             ..Default::default()
@@ -86,9 +93,9 @@ impl DlsiteClient {
     ///     dbg!(&product);
     /// }
     /// ```
-    pub async fn search_product(&self, options: &ProductSearchOptions) -> Result<SearchResult> {
+    pub async fn search_product(&self, options: &SearchProductQuery) -> Result<SearchResult> {
         let query_path = options.to_path();
-        let json = self.get(&query_path).await?;
+        let json = self.c.get(&query_path).await?;
         let json = serde_json::from_str::<SearchAjaxResult>(&json)?;
         let html = json.search_result;
         let count = json.page_info.count;
@@ -159,13 +166,13 @@ pub(crate) fn parse_search_html(html: &str) -> Result<Vec<SearchProductItem>> {
                             "全年齢" => AgeCategory::General,
                             "R-15" => AgeCategory::R15,
                             _ => {
-                                return Err(crate::DlsiteError::ParseError(
+                                return Err(crate::DlsiteError::Parse(
                                     "Age category parse error: invalid title".to_string(),
                                 ))
                             }
                         }
                     } else {
-                        return Err(crate::DlsiteError::ParseError(
+                        return Err(crate::DlsiteError::Parse(
                             "Age category parse error".to_string(),
                         ));
                     }
@@ -290,7 +297,7 @@ pub(crate) fn parse_search_html(html: &str) -> Result<Vec<SearchProductItem>> {
                     }
                     None
                 })
-                .unwrap_or(crate::interface::WorkType::Unknown("".to_string())),
+                .unwrap_or(crate::client::common::WorkType::Unknown("".to_string())),
             thumbnail_url: {
                 let img_e = item_element
                     .select(&Selector::parse(".work_thumb_inner > img").unwrap())
@@ -303,7 +310,7 @@ pub(crate) fn parse_search_html(html: &str) -> Result<Vec<SearchProductItem>> {
                     (Some(src), _) => format!("https:{}", src),
                     (_, Some(data_src)) => format!("https:{}", data_src),
                     (_, _) => {
-                        return Err(crate::DlsiteError::ParseError(
+                        return Err(crate::DlsiteError::Parse(
                             "Failed to find thumbnail".to_string(),
                         ))
                     }
@@ -352,40 +359,42 @@ pub(crate) fn parse_search_html(html: &str) -> Result<Vec<SearchProductItem>> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{search::options::*, DlsiteClient};
+    use crate::client::{common::WorkType, search::options::*, DlsiteClient};
 
     #[tokio::test]
     async fn search_product_1() {
         let client = DlsiteClient::default();
         let res = client
-            .search_product(&super::ProductSearchOptions {
+            .search()
+            .search_product(&super::SearchProductQuery {
                 sex_category: Some(vec![SexCategory::Male]),
-                keyword: Some("ユウカASMR".to_string()),
+                keyword: Some("ねこぐらし".to_string()),
+                order: Some(Order::Release),
                 ..Default::default()
             })
             .await
             .expect("Failed to search");
 
-        assert!(res.products.len() >= 8);
-        assert!(res.count >= 8);
+        assert!(res.products.len() >= 10);
+        assert!(res.count >= 45);
 
         res.products
             .iter()
-            .find(|r| r.id == "RJ403038")
-            .expect("Expected to find RJ403038");
+            .find(|r| r.id == "RJ291224")
+            .expect("Expected to find RJ291224");
 
         res.products.iter().for_each(|r| {
-            if r.id == "RJ403038" {
-                assert_eq!(1320, r.price_original);
-                assert!(r.dl_count.unwrap() > 62000);
+            if r.id == "RJ291224" {
+                assert_eq!(1980, r.price_original);
+                assert!(r.dl_count.unwrap() > 9000);
                 assert!(r.rate_count.is_some());
                 assert!(r.review_count.is_some());
                 assert!(r.rating.is_some());
                 assert!(r.rating.is_some());
-                assert_eq!("RG62982", r.circle_id);
-                assert_eq!("Yostar", r.circle_name);
-                assert_eq!(crate::interface::WorkType::SOU, r.work_type);
-                assert_eq!("春花らん", r.creator.as_ref().unwrap());
+                assert_eq!("RG51654", r.circle_id);
+                assert_eq!("CANDY VOICE", r.circle_name);
+                assert_eq!(WorkType::SOU, r.work_type);
+                assert_eq!("竹達彩奈", r.creator.as_ref().unwrap());
                 assert!(!r.creator_omitted.unwrap());
             }
         });
@@ -394,7 +403,7 @@ mod tests {
     #[tokio::test]
     async fn search_product_2() {
         let client = DlsiteClient::default();
-        let mut opts = super::ProductSearchOptions {
+        let mut opts = super::SearchProductQuery {
             sex_category: Some(vec![SexCategory::Male]),
             order: Some(Order::Trend),
             per_page: Some(50),
@@ -402,6 +411,7 @@ mod tests {
         };
 
         let res = client
+            .search()
             .search_product(&opts)
             .await
             .expect("Failed to search page 1");
@@ -413,6 +423,7 @@ mod tests {
 
         opts.page = Some(2);
         let res = client
+            .search()
             .search_product(&opts)
             .await
             .expect("Failed to search page 2");

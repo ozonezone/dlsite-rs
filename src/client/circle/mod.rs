@@ -1,26 +1,28 @@
-//! Circle api related interfaces
+//! Interfaces related to circle. For more information, see [`CircleClient`].
 
 pub mod options;
 
 use scraper::{Html, Selector};
 
-use crate::{
+use super::{
     search::{parse_search_html, SearchResult},
-    utils::ToParseError,
-    DlsiteClient, Result,
+    DlsiteClient,
 };
+use crate::{error::Result, utils::ToParseError as _};
 
-use self::options::CircleQueryOptions;
+use self::options::CircleQuery;
 
-impl DlsiteClient {
+/// Client to get circle-related content from DLsite.
+#[derive(Clone, Debug)]
+pub struct CircleClient<'a> {
+    pub(crate) c: &'a DlsiteClient,
+}
+
+impl<'a> CircleClient<'a> {
     /// Search circle-related products.
-    pub async fn get_circle(
-        &self,
-        circle_id: &str,
-        options: &CircleQueryOptions,
-    ) -> Result<SearchResult> {
+    pub async fn get_circle(&self, circle_id: &str, options: &CircleQuery) -> Result<SearchResult> {
         let query_path = options.to_path(circle_id);
-        let html = self.get(&query_path).await?;
+        let html = self.c.get(&query_path).await?;
         let html = Html::parse_fragment(&html);
         let products_html = html
             .select(&Selector::parse("#search_result_list").unwrap())
@@ -55,9 +57,10 @@ mod tests {
     async fn get_circle_1() {
         let client = DlsiteClient::default();
         let res = client
+            .circle()
             .get_circle(
                 "RG24350",
-                &super::CircleQueryOptions {
+                &super::CircleQuery {
                     ..Default::default()
                 },
             )
@@ -71,9 +74,10 @@ mod tests {
         });
 
         let res = client
+            .circle()
             .get_circle(
                 "RG24350",
-                &super::CircleQueryOptions {
+                &super::CircleQuery {
                     page: Some(2),
                     ..Default::default()
                 },

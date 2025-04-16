@@ -3,15 +3,15 @@ use chrono::NaiveDate;
 use test_case::test_case;
 
 use crate::{
-    genre::Genre,
-    interface::{AgeCategory, WorkType},
+    client::common::{AgeCategory, WorkType},
+    client::genre::Genre,
     DlsiteClient,
 };
 
 #[tokio::test]
 async fn get_product_1_content() {
     let client = DlsiteClient::default();
-    let res = client.get_product("RJ403038").await.unwrap();
+    let res = client.product().get_all("RJ403038").await.unwrap();
 
     assert_eq!(res.id, "RJ403038".to_string());
     assert_eq!(
@@ -40,7 +40,8 @@ async fn get_product_1_content() {
 async fn get_product_2() {
     let client = DlsiteClient::default();
     let res = client
-        .get_product("RJ01017217")
+        .product()
+        .get_all("RJ01017217")
         .await
         .context("Failed to get product info");
     let res = res.unwrap();
@@ -77,5 +78,5 @@ async fn get_product_2() {
 #[tokio::test]
 async fn get_product_success(id: &str) {
     let client = DlsiteClient::default();
-    client.get_product(id).await.unwrap();
+    client.product().get_all(id).await.unwrap();
 }

@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_with::{formats::PreferOne, serde_as, DefaultOnError, OneOrMany};
 
-use crate::interface::{AgeCategory, FileType, WorkCategory, WorkType};
+use crate::client::common::{AgeCategory, FileType, WorkCategory, WorkType};
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(untagged)]
@@ -83,12 +83,12 @@ pub struct Discount {
     pub note: Option<Value>,
     pub options: ArrOrSingle<Options>,
     pub restore_price: i32,
-    pub restore_trade_price: i32,
+    pub restore_trade_price: Option<i32>,
     pub show_end_date_days: String,
     pub start_date: i32,
     pub status: String,
     pub title: String,
-    pub trade_price_type: String,
+    pub trade_price_type: Option<String>,
     pub update_date: String,
     pub update_id: Option<String>,
     pub workno: String,

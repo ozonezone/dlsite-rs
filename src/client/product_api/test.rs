@@ -3,7 +3,7 @@ use rand::Rng;
 
 use super::interface::Genre;
 use crate::{
-    interface::{AgeCategory, WorkType},
+    client::common::{AgeCategory, WorkType},
     DlsiteClient,
 };
 use test_case::test_case;
@@ -11,7 +11,7 @@ use test_case::test_case;
 #[tokio::test]
 async fn get_product_api_1_content() {
     let client = DlsiteClient::default();
-    let res = client.get_product_api("RJ403038").await.unwrap();
+    let res = client.product_api().get("RJ403038").await.unwrap();
 
     assert_eq!(res.workno, "RJ403038");
     assert_eq!(
@@ -27,7 +27,8 @@ async fn get_product_api_1_content() {
 async fn get_product_api_2() {
     let client = DlsiteClient::default();
     let res = client
-        .get_product_api("RJ01017217")
+        .product_api()
+        .get("RJ01017217")
         .await
         .context("Failed to get product info");
     let res = res.unwrap();
@@ -57,11 +58,11 @@ async fn get_product_api_2() {
 
 #[test_case("RJ01084246"; "otome")]
 #[test_case("VJ01000513"; "soft")]
-#[test_case("RJ222179"; "normal")]
+#[test_case("RJ01060083"; "normal")]
 #[tokio::test]
 async fn get_product_api_success(id: &str) {
     let client = DlsiteClient::default();
-    client.get_product_api(id).await.unwrap();
+    client.product_api().get(id).await.unwrap();
 }
 
 #[tokio::test]
@@ -69,7 +70,7 @@ async fn get_product_api_env() {
     if let Some(id) = std::option_env!("PRODUCT_TEST_ID") {
         println!("Testing for {}", id);
         let client = DlsiteClient::default();
-        client.get_product_api(id).await.unwrap();
+        client.product_api().get(id).await.unwrap();
     }
 }
 
@@ -96,7 +97,7 @@ async fn get_product_api_rand(product_type: &str) {
             continue;
         }
         println!("Testing for {}", id);
-        client.get_product_api(&id).await.unwrap();
+        client.product_api().get(&id).await.unwrap();
 
         i += 1;
         if i >= 5 {

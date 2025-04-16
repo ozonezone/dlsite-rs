@@ -1,19 +1,22 @@
-//! Product data got using "api" method.
-//!
-//! See [`crate::product`] for more information.
+//! Interfaces related to product api. For more information, see [`ProductApiClient`].
 
 pub mod interface;
 #[cfg(test)]
 mod test;
 
-use crate::{DlsiteClient, DlsiteError, Result};
+use crate::{error::Result, DlsiteClient, DlsiteError};
 
 use self::interface::ProductApiContent;
 
-/// Get product data using "api" method.
+/// Client to retrieve DLsite product data using 'scraping' method
 ///
-/// For more information, see [`crate::product_api`].
-impl DlsiteClient {
+/// For difference about "scraping" and "api" method, see [`super::product::ProductClient`].
+#[derive(Clone, Debug)]
+pub struct ProductApiClient<'a> {
+    pub(crate) c: &'a DlsiteClient,
+}
+
+impl<'a> ProductApiClient<'a> {
     /// Get product detail using api.
     ///
     /// # Arguments
@@ -27,17 +30,18 @@ impl DlsiteClient {
     ///
     /// # Example
     /// ```
-    /// use dlsite::{DlsiteClient, product::Product};
-    /// use tokio;
+    /// use dlsite::DlsiteClient;
+    ///
     /// #[tokio::main]
     /// async fn main() {
     ///     let client = DlsiteClient::default();
-    ///     let product = client.get_product_api("RJ01014447").await.unwrap();
+    ///     let product = client.product_api().get("RJ01014447").await.unwrap();
     ///     assert_eq!(product.creators.unwrap().voice_by.unwrap()[0].name, "佐倉綾音");
     /// }
     /// ```
-    pub async fn get_product_api(&self, id: &str) -> Result<ProductApiContent> {
+    pub async fn get(&self, id: &str) -> Result<ProductApiContent> {
         let json = self
+            .c
             .get(&format!("/api/=/product.json?workno={}", id))
             .await?;
         let jd = &mut serde_json::Deserializer::from_str(&json);
@@ -54,15 +58,12 @@ impl DlsiteClient {
         match result {
             Ok(result) => {
                 let Some(json) = result.into_iter().next() else {
-                    return Err(DlsiteError::ParseError("No product found".to_string()));
+                    return Err(DlsiteError::Parse("No product found".to_string()));
                 };
 
                 Ok(json)
             }
-            Err(e) => Err(DlsiteError::ParseError(format!(
-                "Failed to parse json: {}",
-                e
-            ))),
+            Err(e) => Err(DlsiteError::Parse(format!("Failed to parse json: {}", e))),
         }
     }
 }
