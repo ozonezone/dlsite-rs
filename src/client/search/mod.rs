@@ -368,32 +368,33 @@ mod tests {
             .search()
             .search_product(&super::SearchProductQuery {
                 sex_category: Some(vec![SexCategory::Male]),
-                keyword: Some("ユウカASMR".to_string()),
+                keyword: Some("ねこぐらし".to_string()),
+                order: Some(Order::Release),
                 ..Default::default()
             })
             .await
             .expect("Failed to search");
 
-        assert!(res.products.len() >= 8);
-        assert!(res.count >= 8);
+        assert!(res.products.len() >= 10);
+        assert!(res.count >= 45);
 
         res.products
             .iter()
-            .find(|r| r.id == "RJ403038")
-            .expect("Expected to find RJ403038");
+            .find(|r| r.id == "RJ291224")
+            .expect("Expected to find RJ291224");
 
         res.products.iter().for_each(|r| {
-            if r.id == "RJ403038" {
-                assert_eq!(1320, r.price_original);
-                assert!(r.dl_count.unwrap() > 62000);
+            if r.id == "RJ291224" {
+                assert_eq!(1980, r.price_original);
+                assert!(r.dl_count.unwrap() > 9000);
                 assert!(r.rate_count.is_some());
                 assert!(r.review_count.is_some());
                 assert!(r.rating.is_some());
                 assert!(r.rating.is_some());
-                assert_eq!("RG62982", r.circle_id);
-                assert_eq!("Yostar", r.circle_name);
+                assert_eq!("RG51654", r.circle_id);
+                assert_eq!("CANDY VOICE", r.circle_name);
                 assert_eq!(WorkType::SOU, r.work_type);
-                assert_eq!("春花らん", r.creator.as_ref().unwrap());
+                assert_eq!("竹達彩奈", r.creator.as_ref().unwrap());
                 assert!(!r.creator_omitted.unwrap());
             }
         });
