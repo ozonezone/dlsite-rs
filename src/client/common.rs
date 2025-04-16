@@ -7,56 +7,106 @@ use strum::{Display, EnumString};
 /// Work category
 #[derive(Display, EnumString, Debug, PartialEq, Clone, DeserializeFromStr, serde::Serialize)]
 pub enum WorkType {
-    /// アクション
+    /// Game category
+    ///
+    /// JP: アクション
+    /// EN: Action
     ACN,
-    /// クイズ
+    /// JP: クイズ
+    /// EN: Quiz
     QIZ,
+    /// JP: アドベンチャー
+    /// EN: Adventure
     ADV,
+    /// JP: ロールプレイング
+    /// EN: Role-playing
     RPG,
+    /// JP: テーブル
+    /// EN: Table
     TBL,
+    /// JP: デジタルノベル
+    /// EN: Digital Novel
     DNV,
+    /// JP: シミュレーション
+    /// EN: Simulation
     SLN,
+    /// JP: タイピング
+    /// EN: Typing
     TYP,
+    /// JP: シューティング
+    /// EN: Shooting
     STG,
+    /// JP: パズル
+    /// EN: Puzzle
     PZL,
+    /// JP: その他ゲーム
+    /// EN: Miscellaneous Games
     ETC,
 
-    /// マンガ
+    /// Mange category
+    ///
+    /// JP: マンガ
+    /// EN: Manga
     MNG,
-    /// 劇画
+    /// JP: 劇画
+    /// EN: Gekiga
     SCM,
-    /// webtoon
+    /// JP: WEBTOON
+    /// EN: Webtoon
     WBT,
 
-    /// CG・イラスト
+    /// CG + Illustrations category
+    ///
+    /// JP: CG・イラスト
+    /// EN: CG + Illustrations
     ICG,
 
-    // Novel
-    /// ノベル
+    // Novel category
+    //
+    /// JP: ノベル
+    /// EN: Novel
     NRE,
-    /// 官能小説
+    /// JP: 官能小説
+    /// EN: Erotic Novel
     KSV,
 
-    /// 動画
+    /// Video category
+    ///
+    /// JP: 動画
+    /// EN: Video
     MOV,
 
-    /// ボイス・ASMR
+    /// Voice / ASMR category
+    ///
+    /// JP: ボイス・ASMR
+    /// EN: Voice / ASMR
     SOU,
 
-    /// 音楽
+    /// Music category
+    ///
+    /// JP: 音楽
+    /// EN: Music
     MUS,
 
-    // Tool
-    /// ツール
+    /// Tools / Accessories category
+    ///
+    /// JP: ツール/アクセサリ
+    /// EN: Tools / Accessories
     TOL,
-    /// 画像素材
+    /// JP: 画像素材
+    /// EN: Illustration Materials
     IMT,
-    /// 音素材
+    /// JP: 音素材
+    /// EN: Music Materials
     AMT,
 
-    /// その他
+    /// Miscellaneous category
+    ///
+    /// JP: その他
+    /// EN: Miscellaneous
     ET3,
-    /// ボイスコミック
+    /// JP: ボイスコミック
+    /// EN: Voiced Comics
     VCM,
 
     #[strum(default)]
