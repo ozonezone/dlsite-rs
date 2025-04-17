@@ -46,7 +46,7 @@ AJAX API.
 - Search products
 
   ```rust
-  use dlsite::{DlsiteClient, client::search::options::*};
+  use dlsite::{DlsiteClient, client::search::SearchProductQuery, interface::query::*};
 
   #[tokio::main]
   async fn main() {

@@ -1,4 +1,6 @@
-use super::super::search::{macros::*, options::Order};
+use crate::interface::query::Order;
+
+use super::super::search::macros::*;
 
 #[derive(Default)]
 pub struct CircleQuery {
@@ -30,20 +32,20 @@ impl CircleQuery {
 }
 #[cfg(test)]
 mod tests {
-    use crate::client::search::options::Order;
+    use crate::{client::circle::CircleQuery, interface::query::Order};
 
     #[test]
     fn circle_param() {
         assert_eq!(
             "/circle/profile/=/show_type/3/hd/1/without_order/1/maker_id/RG24350.html",
-            super::CircleQuery::default().to_path("RG24350")
+            CircleQuery::default().to_path("RG24350")
         );
     }
     #[test]
     fn circle_param_1() {
         assert_eq!(
             "/circle/profile/=/show_type/3/hd/1/without_order/1/page/2/maker_id/RG24350.html",
-            super::CircleQuery {
+            CircleQuery {
                 page: Some(2),
                 ..Default::default()
             }
@@ -54,7 +56,7 @@ mod tests {
     fn circle_param_2() {
         assert_eq!(
             "/circle/profile/=/show_type/3/hd/1/without_order/1/page/2/maker_id/RG24350.html/order/price",
-            super::CircleQuery {
+            CircleQuery {
                 page: Some(2),
                 order: Some(Order::Price),
                 ..Default::default()

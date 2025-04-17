@@ -1,10 +1,37 @@
-//! Common used interfaces.
-
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use serde_with::DeserializeFromStr;
 use strum::{Display, EnumString};
 
-/// Work category
+/// Work type (Group) (作品形式)
+///
+/// Used to represent several [`WorkType`]s together.
+#[derive(Debug, Display, Clone, PartialEq, EnumString, DeserializeFromStr)]
+#[strum(serialize_all = "snake_case")]
+pub enum WorkTypeCategory {
+    /// ゲーム
+    Game,
+    /// マンガ
+    Comic,
+    /// CG・イラスト
+    Illust,
+    /// ノベル
+    Novel,
+    /// 動画作品/アニメ
+    Movie,
+    /// ボイス・ASMR
+    Audio,
+    /// 音楽
+    Music,
+    /// ツール/アクセサリ
+    Tool,
+    /// その他
+    Etc,
+
+    #[strum(default)]
+    Unknown(String),
+}
+
+/// Work type (Individual) (作品形式)
 #[derive(Display, EnumString, Debug, PartialEq, Clone, DeserializeFromStr, serde::Serialize)]
 pub enum WorkType {
     /// Game category

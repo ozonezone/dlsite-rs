@@ -1,8 +1,6 @@
 use crate::error::Result;
 
 pub mod circle;
-pub mod common;
-pub mod genre;
 pub mod product;
 pub mod product_api;
 pub mod search;

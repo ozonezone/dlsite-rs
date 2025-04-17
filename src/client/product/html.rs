@@ -5,7 +5,9 @@ use scraper::{ElementRef, Html, Selector};
 use url::Url;
 
 use crate::{
-    client::common::AgeCategory, client::genre::Genre, error::Result, utils::ToParseError,
+    error::Result,
+    interface::{genre::Genre, product::AgeCategory},
+    utils::ToParseError,
     DlsiteError,
 };
 

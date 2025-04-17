@@ -1,19 +1,19 @@
 //! Interfaces related to search feature. For more information, see [`SearchClient`].
 
 pub(crate) mod macros;
-pub mod options;
+mod query;
 
 use scraper::{Html, Selector};
 use serde::Deserialize;
 
 use crate::{
-    client::common::{AgeCategory, WorkType},
     error::Result,
+    interface::product::{AgeCategory, WorkType},
     utils::ToParseError,
     DlsiteClient,
 };
 
-use self::options::SearchProductQuery;
+pub use self::query::SearchProductQuery;
 
 /// Client to search products on DLsite.
 pub struct SearchClient<'a> {
@@ -45,7 +45,7 @@ pub struct SearchProductItem {
     pub price_original: i32,
     pub price_sale: Option<i32>,
     pub age_category: AgeCategory,
-    pub work_type: crate::client::common::WorkType,
+    pub work_type: WorkType,
     pub thumbnail_url: String,
     pub rating: Option<f32>, // pub image_url: Option<String>,
 }
@@ -76,7 +76,7 @@ impl<'a> SearchClient<'a> {
     ///
     /// # Example
     /// ```
-    /// use dlsite::{DlsiteClient, client::search::options::*};
+    /// use dlsite::{DlsiteClient, client::search::SearchProductQuery, interface::query::*};
     ///
     /// #[tokio::main]
     /// async fn main() {
@@ -297,7 +297,7 @@ pub(crate) fn parse_search_html(html: &str) -> Result<Vec<SearchProductItem>> {
                     }
                     None
                 })
-                .unwrap_or(crate::client::common::WorkType::Unknown("".to_string())),
+                .unwrap_or(WorkType::Unknown("".to_string())),
             thumbnail_url: {
                 let img_e = item_element
                     .select(&Selector::parse(".work_thumb_inner > img").unwrap())
@@ -359,7 +359,13 @@ pub(crate) fn parse_search_html(html: &str) -> Result<Vec<SearchProductItem>> {
 
 #[cfg(test)]
 mod tests {
-    use crate::client::{common::WorkType, search::options::*, DlsiteClient};
+    use crate::{
+        client::DlsiteClient,
+        interface::{
+            product::WorkType,
+            query::{Order, SexCategory},
+        },
+    };
 
     #[tokio::test]
     async fn search_product_1() {

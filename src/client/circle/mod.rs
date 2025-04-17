@@ -1,6 +1,6 @@
 //! Interfaces related to circle. For more information, see [`CircleClient`].
 
-pub mod options;
+mod query;
 
 use scraper::{Html, Selector};
 
@@ -10,7 +10,7 @@ use super::{
 };
 use crate::{error::Result, utils::ToParseError as _};
 
-use self::options::CircleQuery;
+pub use self::query::CircleQuery;
 
 /// Client to get circle-related content from DLsite.
 #[derive(Clone, Debug)]

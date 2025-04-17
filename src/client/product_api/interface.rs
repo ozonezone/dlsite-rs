@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_with::{formats::PreferOne, serde_as, DefaultOnError, OneOrMany};
 
-use crate::client::common::{AgeCategory, FileType, WorkCategory, WorkType};
+use crate::interface::product::{AgeCategory, FileType, WorkCategory, WorkType};
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(untagged)]
@@ -320,7 +320,7 @@ pub struct ProductApiContent {
     pub bulkbuy_discount_rate: i64,
     pub bulkbuy_point_rate: i64,
     pub bulkbuy_point: i64,
-    pub genres: Vec<Genre>,
+    pub genres: Vec<GenreApi>,
     pub custom_genres: Vec<CustomGenre>,
     pub editions: HashMapOrArr<LanguageEdition>,
     pub language_editions: HashMapOrArr<LanguageEdition>,
@@ -371,7 +371,7 @@ pub struct ProductApiContent {
     pub currency_price: HashMap<String, f64>,
     pub currency_official_price: HashMap<String, f64>,
     pub is_android_or_ios_only_work: bool,
-    pub genres_replaced: Vec<Genre>,
+    pub genres_replaced: Vec<GenreApi>,
     pub limit_sold_dl_count: i32,
 }
 
@@ -551,7 +551,7 @@ pub struct BookType {
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "unknown-field-error", serde(deny_unknown_fields))]
-pub struct Genre {
+pub struct GenreApi {
     pub name: String,
     pub id: i64,
     pub search_val: String,

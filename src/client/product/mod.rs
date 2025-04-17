@@ -2,10 +2,12 @@
 
 use std::collections::HashMap;
 
-use super::genre::Genre;
 use crate::{
-    client::common::{AgeCategory, WorkType},
     error::Result,
+    interface::{
+        genre::Genre,
+        product::{AgeCategory, WorkType},
+    },
     utils::ToParseError as _,
     DlsiteClient, DlsiteError,
 };

@@ -1,11 +1,8 @@
 //! Search options for dlsite product search
 
-use strum::Display;
-
-use crate::{
-    client::common::{FileType, WorkCategory, WorkType},
-    client::search::macros::*,
-};
+use crate::client::search::macros::*;
+use crate::interface::product::*;
+use crate::interface::query::*;
 
 // Struct that can be converted dlsite url (below is example). All params are optional.
 // https://www.dlsite.com/maniax/fsr/=
@@ -53,7 +50,7 @@ pub struct SearchProductQuery {
     pub price_high: Option<u32>,
     /// Sales status
     pub ana_flg: Option<AnaFlg>,
-    pub age_category: Option<Vec<crate::client::common::AgeCategory>>,
+    pub age_category: Option<Vec<AgeCategory>>,
     pub work_category: Option<Vec<WorkCategory>>,
     pub order: Option<Order>,
     pub work_type: Option<Vec<WorkType>>,
@@ -111,98 +108,25 @@ impl SearchProductQuery {
     }
 }
 
-#[derive(Display, Default)]
-#[strum(serialize_all = "snake_case")]
-pub enum Language {
-    #[default]
-    Jp,
-}
-
-#[derive(Display)]
-#[strum(serialize_all = "snake_case")]
-pub enum SexCategory {
-    Male,
-    Female,
-}
-
-/// Flag to represent sales status
-#[derive(Display)]
-#[strum(serialize_all = "snake_case")]
-pub enum AnaFlg {
-    Off,
-    On,
-    Reserve,
-    All,
-}
-
-#[derive(Display)]
-#[strum(serialize_all = "snake_case")]
-pub enum Order {
-    Trend,
-    /// 新しい
-    Release,
-    /// 古い
-    ReleaseD,
-    /// DL数が多い
-    DlD,
-    /// DL数が少ない
-    Dl,
-    /// 安い
-    Price,
-    /// 高い
-    PriceD,
-    /// 評価が高い
-    RateD,
-    /// レビューが多い
-    ReviewD,
-}
-
-/// 作品形式(親カテゴリ)
-#[derive(Display)]
-#[strum(serialize_all = "snake_case")]
-pub enum WorkTypeCategory {
-    Game,
-    Comic,
-    Illust,
-    Novel,
-    MovieAudio,
-    Music,
-    Tool,
-    Etc,
-}
-
-#[derive(Display)]
-#[strum(serialize_all = "snake_case")]
-pub enum OptionAndOr {
-    And,
-    Or,
-}
-
-#[derive(Display)]
-pub enum ReleaseTerm {
-    None,
-    Week,
-    Month,
-    Year,
-    Old,
-}
-
 #[cfg(test)]
 mod tests {
-    use crate::client::search::options::*;
+    use crate::{
+        client::search::SearchProductQuery,
+        interface::{product::FileType, query::SexCategory},
+    };
 
     #[test]
     fn product_search_param_default() {
         assert_eq!(
             "/fsr/ajax/=/language/jp",
-            super::SearchProductQuery::default().to_path()
+            SearchProductQuery::default().to_path()
         );
     }
     #[test]
     fn product_search_param_1() {
         assert_eq!(
             "/fsr/ajax/=/language/jp/sex_category[0]/male/price_low/801/file_type[0]/PNG/file_type[1]/EXE/soon/1",
-            super::SearchProductQuery {
+            SearchProductQuery {
                 sex_category: Some(vec![SexCategory::Male]),
                 price_low: Some(801),
                 file_type: Some(vec![FileType::PNG, FileType::EXE]),

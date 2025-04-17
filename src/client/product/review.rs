@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Deserializer};
 
-use super::super::genre::Genre;
+use crate::interface::genre::Genre;
 
 pub enum ReviewSortOrder {
     New,

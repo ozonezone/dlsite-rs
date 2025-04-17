@@ -1,9 +1,9 @@
 use anyhow::Context;
 use rand::Rng;
 
-use super::interface::Genre;
+use super::interface::GenreApi;
 use crate::{
-    client::common::{AgeCategory, WorkType},
+    interface::product::{AgeCategory, WorkType},
     DlsiteClient,
 };
 use test_case::test_case;
@@ -48,7 +48,7 @@ async fn get_product_api_2() {
     assert_eq!(voice_by[0].name, "丹羽うさぎ");
     assert_eq!(voice_by[1].name, "藤堂れんげ");
     assert_eq!(created_by[0].name, "桃鳥");
-    assert!(res.genres.contains(&Genre {
+    assert!(res.genres.contains(&GenreApi {
         name: "ASMR".to_string(),
         id: 497,
         search_val: "497".to_string(),
