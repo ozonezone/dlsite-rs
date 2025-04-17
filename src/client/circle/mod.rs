@@ -1,4 +1,4 @@
-//! Interfaces related to circle. For more information, see [`CircleClient`].
+//! Interfaces related to circle only. For more information, see [`CircleClient`].
 
 mod query;
 

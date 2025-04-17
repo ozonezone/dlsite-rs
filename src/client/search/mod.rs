@@ -1,4 +1,4 @@
-//! Interfaces related to search feature. For more information, see [`SearchClient`].
+//! Interfaces related to search feature only. For more information, see [`SearchClient`].
 
 pub(crate) mod macros;
 mod query;
@@ -395,7 +395,6 @@ mod tests {
                 assert!(r.dl_count.unwrap() > 9000);
                 assert!(r.rate_count.is_some());
                 assert!(r.review_count.is_some());
-                assert!(r.rating.is_some());
                 assert!(r.rating.is_some());
                 assert_eq!("RG51654", r.circle_id);
                 assert_eq!("CANDY VOICE", r.circle_name);

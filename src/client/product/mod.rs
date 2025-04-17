@@ -1,4 +1,4 @@
-//! Interfaces related to product. For more information, see [`ProductClient`].
+//! Interfaces related to product only. For more information, see [`ProductClient`].
 
 use std::collections::HashMap;
 
